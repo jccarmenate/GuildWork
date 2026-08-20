@@ -1,0 +1,186 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  PROJECT_MANAGER
+  DEVELOPER
+}
+
+enum Seniority {
+  JUNIOR
+  MID
+  SENIOR
+  LEAD
+  PRINCIPAL
+}
+
+enum Proficiency {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ProjectStatus {
+  PLANNING
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum BugStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  WONT_FIX
+}
+
+model User {
+  id              String            @id @default(uuid())
+  email           String            @unique
+  passwordHash    String
+  name            String
+  role            UserRole          @default(DEVELOPER)
+  createdAt       DateTime          @default(now())
+  refreshTokens   RefreshToken[]
+  developerProfile DeveloperProfile?
+  projectsCreated Project[]         @relation("ProjectCreatedBy")
+  bugsReported    Bug[]             @relation("BugReportedBy")
+}
+
+model RefreshToken {
+  id         String    @id @default(uuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash  String
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model DeveloperProfile {
+  id          String            @id @default(uuid())
+  userId      String            @unique
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  seniority   Seniority         @default(JUNIOR)
+  bio         String?
+  mentorId    String?
+  mentor      DeveloperProfile? @relation("Mentorship", fields: [mentorId], references: [id])
+  mentees     DeveloperProfile[] @relation("Mentorship")
+  skills      DeveloperSkill[]
+  assignments ProjectAssignment[]
+  bugsAssigned Bug[]            @relation("BugAssignedTo")
+}
+
+model Skill {
+  id              String            @id @default(uuid())
+  name            String            @unique
+  category        String?
+  developerSkills DeveloperSkill[]
+  projectSkills   ProjectSkill[]
+}
+
+model DeveloperSkill {
+  id           String           @id @default(uuid())
+  developerId  String
+  developer    DeveloperProfile @relation(fields: [developerId], references: [id], onDelete: Cascade)
+  skillId      String
+  skill        Skill            @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  proficiency  Proficiency      @default(BEGINNER)
+
+  @@unique([developerId, skillId])
+}
+
+model Client {
+  id           String    @id @default(uuid())
+  name         String
+  industry     String?
+  contactName  String?
+  contactEmail String?
+  createdAt    DateTime  @default(now())
+  projects     Project[]
+}
+
+model Project {
+  id              String              @id @default(uuid())
+  clientId        String
+  client          Client              @relation(fields: [clientId], references: [id])
+  name            String
+  description     String?
+  priority        Priority            @default(MEDIUM)
+  status          ProjectStatus       @default(PLANNING)
+  budget          Float?
+  startDate       DateTime
+  endDate         DateTime?
+  createdByUserId String
+  createdBy       User                @relation("ProjectCreatedBy", fields: [createdByUserId], references: [id])
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  requiredSkills  ProjectSkill[]
+  assignments     ProjectAssignment[]
+  bugs            Bug[]
+}
+
+model ProjectSkill {
+  id        String  @id @default(uuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  skillId   String
+  skill     Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, skillId])
+}
+
+model ProjectAssignment {
+  id              String           @id @default(uuid())
+  projectId       String
+  project         Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  developerId     String
+  developer       DeveloperProfile @relation(fields: [developerId], references: [id], onDelete: Cascade)
+  roleOnProject   String?
+  hoursAllocated  Float?
+  assignedAt      DateTime         @default(now())
+
+  @@unique([projectId, developerId])
+}
+
+model Bug {
+  id                    String            @id @default(uuid())
+  projectId             String
+  project               Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title                 String
+  description           String?
+  severity              Severity          @default(MEDIUM)
+  status                BugStatus         @default(OPEN)
+  notes                 String?
+  reportedByUserId      String
+  reportedBy            User              @relation("BugReportedBy", fields: [reportedByUserId], references: [id])
+  assignedToDeveloperId String?
+  assignedTo            DeveloperProfile? @relation("BugAssignedTo", fields: [assignedToDeveloperId], references: [id])
+  createdAt             DateTime          @default(now())
+  resolvedAt            DateTime?
+}
