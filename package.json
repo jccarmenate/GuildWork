@@ -1,0 +1,21 @@
+{
+  "name": "guildwork",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Project-management system for a software consultancy — clients, projects, bug tracking, and role-based access control for Admins, Project Managers, and Developers.",
+  "author": "Juan Carlos Carmenate Díaz",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JuanCMath/guildwork.git"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace=backend && npm run build --workspace=frontend",
+    "test": "npm run test --workspace=backend && npm run test --workspace=frontend",
+    "lint": "npm run lint --workspace=backend && npm run lint --workspace=frontend"
+  }
+}
