@@ -1,8 +1,6 @@
 # GuildWork
 
-![Admin dashboard](docs/screenshots/dashboard-admin.png)
-![Project detail](docs/screenshots/project-detail.png)
-![Developer dashboard](docs/screenshots/dashboard-developer.png)
+![GuildWork demo](docs/screenshots/demo.gif)
 
 GuildWork is a project-management system for a software consultancy: Admins and Project Managers run clients, projects, and bug tracking, while Developers see only the projects they're assigned to and manage their own skill profile. The domain concept is original to this build — loosely inspired by a prior academic team project, but designed and implemented from scratch on a different stack.
 
