@@ -6,6 +6,7 @@ import { useClients } from "../api/clients";
 import { useCreateProject, useProjects, type ProjectFilters } from "../api/projects";
 import { RoleGuard } from "../components/RoleGuard";
 import { EmptyState } from "../components/EmptyState";
+import { Spinner } from "../components/Spinner";
 import { PriorityBadge, ProjectStatusBadge } from "../components/Badges";
 import type { Priority, ProjectStatus } from "../api/types";
 
@@ -64,18 +65,18 @@ function NewProjectForm({ onDone }: { onDone: () => void }) {
         />
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}
-      <div className="flex gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row">
         <button
           type="submit"
           disabled={createProject.isPending}
-          className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60"
+          className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition-all duration-150 hover:scale-[1.02] hover:bg-indigo-700 active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100"
         >
           Create project
         </button>
         <button
           type="button"
           onClick={onDone}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-50"
         >
           Cancel
         </button>
@@ -99,7 +100,7 @@ export function ProjectsPage() {
         <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
           <button
             onClick={() => setShowForm((v) => !v)}
-            className="flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+            className="flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition-all duration-150 hover:scale-[1.02] hover:bg-indigo-700 active:scale-[0.98]"
           >
             <Plus className="h-4 w-4" />
             New Project
@@ -110,7 +111,7 @@ export function ProjectsPage() {
       {showForm && <NewProjectForm onDone={() => setShowForm(false)} />}
 
       {isManager && (
-        <div className="mb-4 flex flex-wrap gap-2">
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           <input
             placeholder="Search by name..."
             onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value || undefined }))}
@@ -155,7 +156,7 @@ export function ProjectsPage() {
       )}
 
       {projects.isLoading ? (
-        <p className="text-sm text-slate-500">Loading projects...</p>
+        <Spinner label="Loading projects..." />
       ) : projects.isError ? (
         <p className="text-sm text-red-600">Failed to load projects.</p>
       ) : projects.data?.length === 0 ? (
@@ -170,34 +171,36 @@ export function ProjectsPage() {
         />
       ) : (
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-slate-50 text-slate-500">
-              <tr>
-                <th className="px-4 py-2">Name</th>
-                <th className="px-4 py-2">Client</th>
-                <th className="px-4 py-2">Status</th>
-                <th className="px-4 py-2">Priority</th>
-              </tr>
-            </thead>
-            <tbody>
-              {projects.data!.map((p) => (
-                <tr key={p.id} className="border-t border-slate-100 hover:bg-slate-50">
-                  <td className="px-4 py-2">
-                    <Link to={`/projects/${p.id}`} className="font-medium text-indigo-600 hover:text-indigo-700 hover:underline">
-                      {p.name}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-2 text-slate-600">{p.client?.name ?? "-"}</td>
-                  <td className="px-4 py-2">
-                    <ProjectStatusBadge status={p.status} />
-                  </td>
-                  <td className="px-4 py-2">
-                    <PriorityBadge priority={p.priority} />
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-50 text-slate-500">
+                <tr>
+                  <th className="px-4 py-2">Name</th>
+                  <th className="px-4 py-2">Client</th>
+                  <th className="px-4 py-2">Status</th>
+                  <th className="px-4 py-2">Priority</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {projects.data!.map((p) => (
+                  <tr key={p.id} className="border-t border-slate-100 transition-colors duration-150 hover:bg-slate-50">
+                    <td className="px-4 py-2">
+                      <Link to={`/projects/${p.id}`} className="font-medium text-indigo-600 hover:text-indigo-700 hover:underline">
+                        {p.name}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-2 text-slate-600">{p.client?.name ?? "-"}</td>
+                    <td className="px-4 py-2">
+                      <ProjectStatusBadge status={p.status} />
+                    </td>
+                    <td className="px-4 py-2">
+                      <PriorityBadge priority={p.priority} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

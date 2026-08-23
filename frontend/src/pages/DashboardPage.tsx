@@ -7,6 +7,7 @@ import { useMyBugs } from "../api/bugs";
 import { useProjects } from "../api/projects";
 import { StatTile } from "../components/StatTile";
 import { EmptyState } from "../components/EmptyState";
+import { Spinner } from "../components/Spinner";
 import { BugStatusBadge, ProjectStatusBadge, SeverityBadge } from "../components/Badges";
 
 const CHART_COLOR = "#4f46e5";
@@ -25,7 +26,7 @@ function ManagerDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatTile label="Total bugs tracked" value={totalBugs} icon={BugIcon} tint="amber" />
         <StatTile label="Avg. completion rate" value={`${Math.round(overallCompletion * 100)}%`} icon={Gauge} tint="emerald" />
         <StatTile label="Top performers tracked" value={topPerformers.data?.length ?? 0} icon={Award} tint="indigo" />
@@ -34,7 +35,7 @@ function ManagerDashboard() {
       <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-semibold text-slate-700">Bugs by severity</h2>
         {bugSeverity.isLoading ? (
-          <p className="text-sm text-slate-500">Loading...</p>
+          <Spinner />
         ) : (
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={bugSeverity.data}>
@@ -42,7 +43,7 @@ function ManagerDashboard() {
               <XAxis dataKey="severity" />
               <YAxis allowDecimals={false} />
               <Tooltip />
-              <Bar dataKey="count" fill={CHART_COLOR} radius={[4, 4, 0, 0]} />
+              <Bar dataKey="count" fill={CHART_COLOR} radius={[4, 4, 0, 0]} animationDuration={500} />
             </BarChart>
           </ResponsiveContainer>
         )}
@@ -51,28 +52,30 @@ function ManagerDashboard() {
       <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-semibold text-slate-700">Top performers</h2>
         {topPerformers.isLoading ? (
-          <p className="text-sm text-slate-500">Loading...</p>
+          <Spinner />
         ) : (topPerformers.data?.length ?? 0) === 0 ? (
           <EmptyState icon={Award} title="No resolved high-severity bugs yet" />
         ) : (
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="text-slate-500">
-                <th className="py-1">Developer</th>
-                <th className="py-1">High/critical bugs resolved</th>
-                <th className="py-1">Avg. resolution (hrs)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {topPerformers.data!.map((row) => (
-                <tr key={row.developerId} className="border-t border-slate-100">
-                  <td className="py-1.5">{row.name}</td>
-                  <td className="py-1.5">{row.resolvedHighSeverityCount}</td>
-                  <td className="py-1.5">{row.avgResolutionHours ? row.avgResolutionHours.toFixed(1) : "n/a"}</td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="text-slate-500">
+                  <th className="py-1">Developer</th>
+                  <th className="py-1">High/critical bugs resolved</th>
+                  <th className="py-1">Avg. resolution (hrs)</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {topPerformers.data!.map((row) => (
+                  <tr key={row.developerId} className="border-t border-slate-100">
+                    <td className="py-1.5">{row.name}</td>
+                    <td className="py-1.5">{row.resolvedHighSeverityCount}</td>
+                    <td className="py-1.5">{row.avgResolutionHours ? row.avgResolutionHours.toFixed(1) : "n/a"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
@@ -88,7 +91,7 @@ function DeveloperDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatTile label="Assigned projects" value={projects.data?.length ?? 0} icon={FolderKanban} tint="indigo" />
         <StatTile label="Open bugs" value={openBugs.length} icon={BugIcon} tint="amber" />
         <StatTile label="Skills logged" value={profile.data?.skills.length ?? 0} icon={Sparkles} tint="violet" />
@@ -97,7 +100,7 @@ function DeveloperDashboard() {
       <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="mb-3 text-sm font-semibold text-slate-700">Your assigned projects</h2>
         {projects.isLoading ? (
-          <p className="text-sm text-slate-500">Loading...</p>
+          <Spinner />
         ) : projects.data?.length === 0 ? (
           <EmptyState icon={FolderKanban} title="You are not assigned to any projects yet" />
         ) : (

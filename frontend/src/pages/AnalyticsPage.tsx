@@ -42,30 +42,32 @@ export function AnalyticsPage() {
             <XAxis dataKey="severity" />
             <YAxis allowDecimals={false} />
             <Tooltip />
-            <Bar dataKey="count" fill={CHART_COLOR} radius={[4, 4, 0, 0]} />
+            <Bar dataKey="count" fill={CHART_COLOR} radius={[4, 4, 0, 0]} animationDuration={500} />
           </BarChart>
         </ResponsiveContainer>
       </Panel>
 
       <Panel title="Developer workload">
-        <table className="w-full text-left text-sm">
-          <thead className="text-slate-500">
-            <tr>
-              <th className="py-1">Developer</th>
-              <th className="py-1">Active assignments</th>
-              <th className="py-1">Open bugs</th>
-            </tr>
-          </thead>
-          <tbody>
-            {workload.data?.map((row) => (
-              <tr key={row.developerId} className="border-t border-slate-100">
-                <td className="py-1.5">{row.name}</td>
-                <td className="py-1.5">{row.activeAssignments}</td>
-                <td className="py-1.5">{row.openBugs}</td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="text-slate-500">
+              <tr>
+                <th className="py-1">Developer</th>
+                <th className="py-1">Active assignments</th>
+                <th className="py-1">Open bugs</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {workload.data?.map((row) => (
+                <tr key={row.developerId} className="border-t border-slate-100">
+                  <td className="py-1.5">{row.name}</td>
+                  <td className="py-1.5">{row.activeAssignments}</td>
+                  <td className="py-1.5">{row.openBugs}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </Panel>
 
       <Panel title="Mentorship">
@@ -118,47 +120,51 @@ export function AnalyticsPage() {
       </Panel>
 
       <Panel title="Skill coverage">
-        <table className="w-full text-left text-sm">
-          <thead className="text-slate-500">
-            <tr>
-              <th className="py-1">Skill</th>
-              <th className="py-1">Developers</th>
-              <th className="py-1">Active projects requiring</th>
-              <th className="py-1">Gap</th>
-            </tr>
-          </thead>
-          <tbody>
-            {skillCoverage.data?.map((row) => (
-              <tr key={row.skillId} className="border-t border-slate-100">
-                <td className="py-1.5">{row.name}</td>
-                <td className="py-1.5">{row.developersWithSkill}</td>
-                <td className="py-1.5">{row.activeProjectsRequiring}</td>
-                <td className={`py-1.5 font-medium ${row.gap > 0 ? "text-red-600" : "text-slate-600"}`}>{row.gap}</td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="text-slate-500">
+              <tr>
+                <th className="py-1">Skill</th>
+                <th className="py-1">Developers</th>
+                <th className="py-1">Active projects requiring</th>
+                <th className="py-1">Gap</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {skillCoverage.data?.map((row) => (
+                <tr key={row.skillId} className="border-t border-slate-100">
+                  <td className="py-1.5">{row.name}</td>
+                  <td className="py-1.5">{row.developersWithSkill}</td>
+                  <td className="py-1.5">{row.activeProjectsRequiring}</td>
+                  <td className={`py-1.5 font-medium ${row.gap > 0 ? "text-red-600" : "text-slate-600"}`}>{row.gap}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </Panel>
 
       <Panel title="Top performers">
-        <table className="w-full text-left text-sm">
-          <thead className="text-slate-500">
-            <tr>
-              <th className="py-1">Developer</th>
-              <th className="py-1">High/critical bugs resolved</th>
-              <th className="py-1">Avg. resolution (hrs)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {topPerformers.data?.map((row) => (
-              <tr key={row.developerId} className="border-t border-slate-100">
-                <td className="py-1.5">{row.name}</td>
-                <td className="py-1.5">{row.resolvedHighSeverityCount}</td>
-                <td className="py-1.5">{row.avgResolutionHours ? row.avgResolutionHours.toFixed(1) : "n/a"}</td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="text-slate-500">
+              <tr>
+                <th className="py-1">Developer</th>
+                <th className="py-1">High/critical bugs resolved</th>
+                <th className="py-1">Avg. resolution (hrs)</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {topPerformers.data?.map((row) => (
+                <tr key={row.developerId} className="border-t border-slate-100">
+                  <td className="py-1.5">{row.name}</td>
+                  <td className="py-1.5">{row.resolvedHighSeverityCount}</td>
+                  <td className="py-1.5">{row.avgResolutionHours ? row.avgResolutionHours.toFixed(1) : "n/a"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </Panel>
     </div>
   );

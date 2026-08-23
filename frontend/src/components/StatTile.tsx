@@ -19,7 +19,7 @@ interface StatTileProps {
 
 export function StatTile({ label, value, icon: Icon, tint = "indigo" }: StatTileProps) {
   return (
-    <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow duration-150 hover:shadow-md">
       <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${TINT_CLASSES[tint]}`}>
         <Icon className="h-5 w-5" />
       </div>

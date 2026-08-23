@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import type { UserRole } from "../api/types";
+import { Spinner } from "./Spinner";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -12,7 +13,11 @@ export function ProtectedRoute({ children, allow }: ProtectedRouteProps) {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div className="p-8 text-center text-slate-500">Loading...</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+        <Spinner />
+      </div>
+    );
   }
   if (!user) {
     return <Navigate to="/login" replace />;

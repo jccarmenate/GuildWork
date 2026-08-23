@@ -6,6 +6,7 @@ import { useWorkloadAnalytics } from "../api/analytics";
 import { useSkills } from "../api/skills";
 import { RoleGuard } from "../components/RoleGuard";
 import { EmptyState } from "../components/EmptyState";
+import { Spinner } from "../components/Spinner";
 import { apiFetch } from "../api/client";
 import type { UserRole } from "../api/types";
 
@@ -26,47 +27,49 @@ function TeamRosterView() {
 
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      <table className="w-full text-left text-sm">
-        <thead className="bg-slate-50 text-slate-500">
-          <tr>
-            <th className="px-4 py-2">Name</th>
-            <th className="px-4 py-2">Seniority</th>
-            <th className="px-4 py-2">Skills</th>
-            <th className="px-4 py-2">Mentor</th>
-            <th className="px-4 py-2">Active projects</th>
-            <th className="px-4 py-2">Open bugs</th>
-            {user?.role === "ADMIN" && <th className="px-4 py-2">Role</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {developers.data?.map((d) => {
-            const w = workloadByDevId.get(d.id);
-            return (
-              <tr key={d.id} className="border-t border-slate-100">
-                <td className="px-4 py-2 font-medium text-slate-900">{d.user.name}</td>
-                <td className="px-4 py-2 text-slate-600">{d.seniority}</td>
-                <td className="px-4 py-2 text-slate-600">{d.skills.map((s) => s.skill.name).join(", ") || "-"}</td>
-                <td className="px-4 py-2 text-slate-600">{d.mentor?.user.name ?? "-"}</td>
-                <td className="px-4 py-2 text-slate-600">{w?.activeAssignments ?? "-"}</td>
-                <td className="px-4 py-2 text-slate-600">{w?.openBugs ?? "-"}</td>
-                {user?.role === "ADMIN" && (
-                  <td className="px-4 py-2">
-                    <select
-                      defaultValue="DEVELOPER"
-                      onChange={(e) => void changeRole(d.userId, e.target.value as UserRole)}
-                      className="rounded-md border border-slate-300 px-2 py-1 text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                    >
-                      <option value="DEVELOPER">Developer</option>
-                      <option value="PROJECT_MANAGER">Project Manager</option>
-                      <option value="ADMIN">Admin</option>
-                    </select>
-                  </td>
-                )}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-sm">
+          <thead className="bg-slate-50 text-slate-500">
+            <tr>
+              <th className="px-4 py-2">Name</th>
+              <th className="px-4 py-2">Seniority</th>
+              <th className="px-4 py-2">Skills</th>
+              <th className="px-4 py-2">Mentor</th>
+              <th className="px-4 py-2">Active projects</th>
+              <th className="px-4 py-2">Open bugs</th>
+              {user?.role === "ADMIN" && <th className="px-4 py-2">Role</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {developers.data?.map((d) => {
+              const w = workloadByDevId.get(d.id);
+              return (
+                <tr key={d.id} className="border-t border-slate-100 transition-colors duration-150 hover:bg-slate-50">
+                  <td className="px-4 py-2 font-medium text-slate-900">{d.user.name}</td>
+                  <td className="px-4 py-2 text-slate-600">{d.seniority}</td>
+                  <td className="px-4 py-2 text-slate-600">{d.skills.map((s) => s.skill.name).join(", ") || "-"}</td>
+                  <td className="px-4 py-2 text-slate-600">{d.mentor?.user.name ?? "-"}</td>
+                  <td className="px-4 py-2 text-slate-600">{w?.activeAssignments ?? "-"}</td>
+                  <td className="px-4 py-2 text-slate-600">{w?.openBugs ?? "-"}</td>
+                  {user?.role === "ADMIN" && (
+                    <td className="px-4 py-2">
+                      <select
+                        defaultValue="DEVELOPER"
+                        onChange={(e) => void changeRole(d.userId, e.target.value as UserRole)}
+                        className="rounded-md border border-slate-300 px-2 py-1 text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      >
+                        <option value="DEVELOPER">Developer</option>
+                        <option value="PROJECT_MANAGER">Project Manager</option>
+                        <option value="ADMIN">Admin</option>
+                      </select>
+                    </td>
+                  )}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -79,7 +82,7 @@ function MyProfileView() {
   const updateProfile = useUpdateMyProfile();
   const [bio, setBio] = useState(profile.data?.bio ?? "");
 
-  if (profile.isLoading) return <p className="text-sm text-slate-500">Loading your profile...</p>;
+  if (profile.isLoading) return <Spinner label="Loading your profile..." />;
   if (!profile.data) return <p className="text-sm text-red-600">Could not load your profile.</p>;
 
   const mySkillIds = new Set(profile.data.skills.map((s) => s.skillId));
@@ -99,7 +102,7 @@ function MyProfileView() {
         />
         <button
           onClick={() => updateProfile.mutate({ bio })}
-          className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+          className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition-all duration-150 hover:scale-[1.02] hover:bg-indigo-700 active:scale-[0.98]"
         >
           Save bio
         </button>
@@ -116,7 +119,7 @@ function MyProfileView() {
               {s.skill.name} ({s.proficiency})
               <button
                 onClick={() => removeSkill.mutate(s.skillId)}
-                className="text-indigo-400 hover:text-indigo-700"
+                className="text-indigo-400 transition-colors duration-150 hover:text-indigo-700"
                 aria-label={`Remove ${s.skill.name}`}
               >
                 <X className="h-3 w-3" />

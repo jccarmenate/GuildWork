@@ -16,6 +16,7 @@ import { useDevelopers, useMyDeveloperProfile } from "../api/developers";
 import { useSkills } from "../api/skills";
 import { RoleGuard } from "../components/RoleGuard";
 import { EmptyState } from "../components/EmptyState";
+import { Spinner } from "../components/Spinner";
 import { BugStatusBadge, ProjectStatusBadge, PriorityBadge, SeverityBadge } from "../components/Badges";
 import type { Bug, Severity } from "../api/types";
 
@@ -61,7 +62,7 @@ function BugRow({ bug, projectId, myDeveloperId }: { bug: Bug; projectId: string
             />
             <button
               onClick={() => updateBug.mutate({ id: bug.id, data: { notes } })}
-              className="rounded-md border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+              className="rounded-md border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-50"
             >
               Save
             </button>
@@ -74,7 +75,7 @@ function BugRow({ bug, projectId, myDeveloperId }: { bug: Bug; projectId: string
         <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
           <button
             onClick={() => deleteBug.mutate(bug.id)}
-            className="inline-flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-700"
+            className="inline-flex items-center gap-1 text-xs font-medium text-red-600 transition-colors duration-150 hover:text-red-700"
           >
             <Trash2 className="h-3.5 w-3.5" />
             Delete
@@ -118,7 +119,7 @@ export function ProjectDetailPage() {
     }
   }
 
-  if (project.isLoading) return <p className="text-sm text-slate-500">Loading project...</p>;
+  if (project.isLoading) return <Spinner label="Loading project..." />;
   if (project.isError || !project.data) return <p className="text-sm text-red-600">Project not found.</p>;
 
   const p = project.data;
@@ -127,10 +128,10 @@ export function ProjectDetailPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">{p.name}</h1>
-          <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-500">
             <span>{p.client?.name}</span>
             <span className="text-slate-300">•</span>
             <ProjectStatusBadge status={p.status} />
@@ -140,7 +141,7 @@ export function ProjectDetailPage() {
         <button
           onClick={() => void downloadReport()}
           disabled={isDownloading}
-          className="flex items-center gap-1.5 rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+          className="flex items-center gap-1.5 rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-50 disabled:opacity-60"
         >
           <Download className="h-4 w-4" />
           {isDownloading ? "Preparing..." : "Download PDF report"}
@@ -158,7 +159,7 @@ export function ProjectDetailPage() {
               <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
                 <button
                   onClick={() => unassignDeveloper.mutate(a.developerId)}
-                  className="inline-flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-700"
+                  className="inline-flex items-center gap-1 text-xs font-medium text-red-600 transition-colors duration-150 hover:text-red-700"
                 >
                   <UserMinus className="h-3.5 w-3.5" />
                   Unassign
@@ -201,7 +202,7 @@ export function ProjectDetailPage() {
               <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
                 <button
                   onClick={() => removeSkill.mutate(rs.skillId)}
-                  className="text-indigo-400 hover:text-indigo-700"
+                  className="text-indigo-400 transition-colors duration-150 hover:text-indigo-700"
                   aria-label={`Remove ${rs.skill.name}`}
                 >
                   <X className="h-3 w-3" />
@@ -236,12 +237,12 @@ export function ProjectDetailPage() {
           <h2 className="text-sm font-semibold text-slate-700">Bugs</h2>
         </div>
         <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
-          <div className="mb-3 flex gap-2">
+          <div className="mb-3 flex flex-col gap-2 sm:flex-row">
             <input
               placeholder="New bug title"
               value={newBugTitle}
               onChange={(e) => setNewBugTitle(e.target.value)}
-              className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:flex-1"
             />
             <select
               value={newBugSeverity}
@@ -260,7 +261,7 @@ export function ProjectDetailPage() {
                 createBug.mutate({ title: newBugTitle, severity: newBugSeverity });
                 setNewBugTitle("");
               }}
-              className="flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+              className="flex items-center justify-center gap-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition-all duration-150 hover:scale-[1.02] hover:bg-indigo-700 active:scale-[0.98]"
             >
               <Plus className="h-4 w-4" />
               Add bug
@@ -270,22 +271,24 @@ export function ProjectDetailPage() {
         {p.bugs?.length === 0 ? (
           <EmptyState icon={BugIcon} title="No bugs reported" />
         ) : (
-          <table className="w-full text-left text-sm">
-            <thead className="text-slate-500">
-              <tr>
-                <th className="px-3 py-1">Title</th>
-                <th className="px-3 py-1">Severity</th>
-                <th className="px-3 py-1">Status</th>
-                <th className="px-3 py-1">Notes</th>
-                <th className="px-3 py-1" />
-              </tr>
-            </thead>
-            <tbody>
-              {p.bugs?.map((b) => (
-                <BugRow key={b.id} bug={b} projectId={p.id} myDeveloperId={myProfile.data?.id} />
-              ))}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="text-slate-500">
+                <tr>
+                  <th className="px-3 py-1">Title</th>
+                  <th className="px-3 py-1">Severity</th>
+                  <th className="px-3 py-1">Status</th>
+                  <th className="px-3 py-1">Notes</th>
+                  <th className="px-3 py-1" />
+                </tr>
+              </thead>
+              <tbody>
+                {p.bugs?.map((b) => (
+                  <BugRow key={b.id} bug={b} projectId={p.id} myDeveloperId={myProfile.data?.id} />
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
     </div>
