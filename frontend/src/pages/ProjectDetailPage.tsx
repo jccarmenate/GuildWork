@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
+import { Bug as BugIcon, Download, Plus, Trash2, UserMinus, X } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
 import { apiFetchBlob } from "../api/client";
 import {
@@ -14,6 +15,8 @@ import { useDeleteBug, useUpdateBug } from "../api/bugs";
 import { useDevelopers, useMyDeveloperProfile } from "../api/developers";
 import { useSkills } from "../api/skills";
 import { RoleGuard } from "../components/RoleGuard";
+import { EmptyState } from "../components/EmptyState";
+import { BugStatusBadge, ProjectStatusBadge, PriorityBadge, SeverityBadge } from "../components/Badges";
 import type { Bug, Severity } from "../api/types";
 
 function BugRow({ bug, projectId, myDeveloperId }: { bug: Bug; projectId: string; myDeveloperId?: string }) {
@@ -27,13 +30,15 @@ function BugRow({ bug, projectId, myDeveloperId }: { bug: Bug; projectId: string
   return (
     <tr className="border-t border-slate-100">
       <td className="px-3 py-2">{bug.title}</td>
-      <td className="px-3 py-2">{bug.severity}</td>
+      <td className="px-3 py-2">
+        <SeverityBadge severity={bug.severity} />
+      </td>
       <td className="px-3 py-2">
         {isManager || isMine ? (
           <select
             value={bug.status}
             onChange={(e) => updateBug.mutate({ id: bug.id, data: { status: e.target.value } })}
-            className="rounded-md border border-slate-300 px-2 py-1 text-xs"
+            className="rounded-md border border-slate-300 px-2 py-1 text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
           >
             {["OPEN", "IN_PROGRESS", "RESOLVED", "WONT_FIX"].map((s) => (
               <option key={s} value={s}>
@@ -42,7 +47,7 @@ function BugRow({ bug, projectId, myDeveloperId }: { bug: Bug; projectId: string
             ))}
           </select>
         ) : (
-          bug.status
+          <BugStatusBadge status={bug.status} />
         )}
       </td>
       <td className="px-3 py-2">
@@ -51,12 +56,12 @@ function BugRow({ bug, projectId, myDeveloperId }: { bug: Bug; projectId: string
             <input
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-40 rounded-md border border-slate-300 px-2 py-1 text-xs"
+              className="w-40 rounded-md border border-slate-300 px-2 py-1 text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               placeholder="Add a note..."
             />
             <button
               onClick={() => updateBug.mutate({ id: bug.id, data: { notes } })}
-              className="rounded-md border border-slate-300 px-2 py-1 text-xs"
+              className="rounded-md border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
             >
               Save
             </button>
@@ -67,7 +72,11 @@ function BugRow({ bug, projectId, myDeveloperId }: { bug: Bug; projectId: string
       </td>
       <td className="px-3 py-2 text-right">
         <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
-          <button onClick={() => deleteBug.mutate(bug.id)} className="text-xs text-red-600 underline">
+          <button
+            onClick={() => deleteBug.mutate(bug.id)}
+            className="inline-flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-700"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
             Delete
           </button>
         </RoleGuard>
@@ -120,21 +129,25 @@ export function ProjectDetailPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">{p.name}</h1>
-          <p className="text-sm text-slate-500">
-            {p.client?.name} — {p.status} — {p.priority}
-          </p>
+          <h1 className="text-2xl font-bold text-slate-900">{p.name}</h1>
+          <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
+            <span>{p.client?.name}</span>
+            <span className="text-slate-300">•</span>
+            <ProjectStatusBadge status={p.status} />
+            <PriorityBadge priority={p.priority} />
+          </div>
         </div>
         <button
           onClick={() => void downloadReport()}
           disabled={isDownloading}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-slate-100"
+          className="flex items-center gap-1.5 rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60"
         >
+          <Download className="h-4 w-4" />
           {isDownloading ? "Preparing..." : "Download PDF report"}
         </button>
       </div>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-4">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="mb-3 text-sm font-semibold text-slate-700">Assigned developers</h2>
         <ul className="mb-3 divide-y divide-slate-100">
           {p.assignments?.map((a) => (
@@ -145,8 +158,9 @@ export function ProjectDetailPage() {
               <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
                 <button
                   onClick={() => unassignDeveloper.mutate(a.developerId)}
-                  className="text-xs text-red-600 underline"
+                  className="inline-flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-700"
                 >
+                  <UserMinus className="h-3.5 w-3.5" />
                   Unassign
                 </button>
               </RoleGuard>
@@ -161,7 +175,7 @@ export function ProjectDetailPage() {
               if (e.target.value) assignDeveloper.mutate({ developerId: e.target.value });
               e.target.value = "";
             }}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+            className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
           >
             <option value="">Assign a developer...</option>
             {developers.data
@@ -175,15 +189,22 @@ export function ProjectDetailPage() {
         </RoleGuard>
       </section>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-4">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="mb-3 text-sm font-semibold text-slate-700">Required skills</h2>
         <div className="mb-3 flex flex-wrap gap-2">
           {p.requiredSkills?.map((rs) => (
-            <span key={rs.id} className="flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-xs">
+            <span
+              key={rs.id}
+              className="flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700"
+            >
               {rs.skill.name}
               <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
-                <button onClick={() => removeSkill.mutate(rs.skillId)} className="text-red-600">
-                  x
+                <button
+                  onClick={() => removeSkill.mutate(rs.skillId)}
+                  className="text-indigo-400 hover:text-indigo-700"
+                  aria-label={`Remove ${rs.skill.name}`}
+                >
+                  <X className="h-3 w-3" />
                 </button>
               </RoleGuard>
             </span>
@@ -196,7 +217,7 @@ export function ProjectDetailPage() {
               if (e.target.value) addSkill.mutate(e.target.value);
               e.target.value = "";
             }}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+            className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
           >
             <option value="">Add a required skill...</option>
             {skills.data
@@ -210,7 +231,7 @@ export function ProjectDetailPage() {
         </RoleGuard>
       </section>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-4">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-slate-700">Bugs</h2>
         </div>
@@ -220,12 +241,12 @@ export function ProjectDetailPage() {
               placeholder="New bug title"
               value={newBugTitle}
               onChange={(e) => setNewBugTitle(e.target.value)}
-              className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm"
+              className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             />
             <select
               value={newBugSeverity}
               onChange={(e) => setNewBugSeverity(e.target.value as Severity)}
-              className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+              className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             >
               {["LOW", "MEDIUM", "HIGH", "CRITICAL"].map((s) => (
                 <option key={s} value={s}>
@@ -239,14 +260,15 @@ export function ProjectDetailPage() {
                 createBug.mutate({ title: newBugTitle, severity: newBugSeverity });
                 setNewBugTitle("");
               }}
-              className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white"
+              className="flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700"
             >
+              <Plus className="h-4 w-4" />
               Add bug
             </button>
           </div>
         </RoleGuard>
         {p.bugs?.length === 0 ? (
-          <p className="text-sm text-slate-500">No bugs reported.</p>
+          <EmptyState icon={BugIcon} title="No bugs reported" />
         ) : (
           <table className="w-full text-left text-sm">
             <thead className="text-slate-500">

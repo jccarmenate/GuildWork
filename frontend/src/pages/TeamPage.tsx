@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { Users, X } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
 import { useDevelopers, useMyDeveloperProfile, useAddMySkill, useRemoveMySkill, useUpdateMyProfile } from "../api/developers";
 import { useWorkloadAnalytics } from "../api/analytics";
 import { useSkills } from "../api/skills";
 import { RoleGuard } from "../components/RoleGuard";
+import { EmptyState } from "../components/EmptyState";
 import { apiFetch } from "../api/client";
 import type { UserRole } from "../api/types";
 
@@ -18,8 +20,12 @@ function TeamRosterView() {
 
   const workloadByDevId = new Map(workload.data?.map((w) => [w.developerId, w]));
 
+  if (developers.data?.length === 0) {
+    return <EmptyState icon={Users} title="No developers yet" />;
+  }
+
   return (
-    <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <table className="w-full text-left text-sm">
         <thead className="bg-slate-50 text-slate-500">
           <tr>
@@ -48,7 +54,7 @@ function TeamRosterView() {
                     <select
                       defaultValue="DEVELOPER"
                       onChange={(e) => void changeRole(d.userId, e.target.value as UserRole)}
-                      className="rounded-md border border-slate-300 px-2 py-1 text-xs"
+                      className="rounded-md border border-slate-300 px-2 py-1 text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                     >
                       <option value="DEVELOPER">Developer</option>
                       <option value="PROJECT_MANAGER">Project Manager</option>
@@ -80,7 +86,7 @@ function MyProfileView() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-lg border border-slate-200 bg-white p-4">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="mb-2 text-sm font-semibold text-slate-700">
           {profile.data.user.name} — {profile.data.seniority}
         </h2>
@@ -89,24 +95,31 @@ function MyProfileView() {
           value={bio}
           onChange={(e) => setBio(e.target.value)}
           placeholder="Tell the team about yourself..."
-          className="mb-2 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+          className="mb-2 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
         <button
           onClick={() => updateProfile.mutate({ bio })}
-          className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white"
+          className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700"
         >
           Save bio
         </button>
       </section>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-4">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="mb-3 text-sm font-semibold text-slate-700">Your skills</h2>
         <div className="mb-3 flex flex-wrap gap-2">
           {profile.data.skills.map((s) => (
-            <span key={s.id} className="flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-xs">
+            <span
+              key={s.id}
+              className="flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700"
+            >
               {s.skill.name} ({s.proficiency})
-              <button onClick={() => removeSkill.mutate(s.skillId)} className="text-red-600">
-                x
+              <button
+                onClick={() => removeSkill.mutate(s.skillId)}
+                className="text-indigo-400 hover:text-indigo-700"
+                aria-label={`Remove ${s.skill.name}`}
+              >
+                <X className="h-3 w-3" />
               </button>
             </span>
           ))}
@@ -117,7 +130,7 @@ function MyProfileView() {
             if (e.target.value) addSkill.mutate({ skillId: e.target.value });
             e.target.value = "";
           }}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+          className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         >
           <option value="">Add a skill...</option>
           {skills.data
@@ -136,7 +149,7 @@ function MyProfileView() {
 export function TeamPage() {
   return (
     <div>
-      <h1 className="mb-4 text-xl font-bold text-slate-900">Team</h1>
+      <h1 className="mb-4 text-2xl font-bold text-slate-900">Team</h1>
       <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
         <TeamRosterView />
       </RoleGuard>

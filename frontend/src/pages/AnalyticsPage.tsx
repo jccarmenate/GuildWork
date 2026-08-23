@@ -1,4 +1,5 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { GraduationCap } from "lucide-react";
 import {
   useBugSeverityAnalytics,
   useMentorshipAnalytics,
@@ -7,10 +8,15 @@ import {
   useTopPerformersAnalytics,
   useWorkloadAnalytics
 } from "../api/analytics";
+import { EmptyState } from "../components/EmptyState";
+import { PriorityBadge } from "../components/Badges";
+import type { Priority } from "../api/types";
+
+const CHART_COLOR = "#4f46e5";
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4">
+    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <h2 className="mb-3 text-sm font-semibold text-slate-700">{title}</h2>
       {children}
     </section>
@@ -27,16 +33,16 @@ export function AnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-bold text-slate-900">Analytics</h1>
+      <h1 className="text-2xl font-bold text-slate-900">Analytics</h1>
 
       <Panel title="Bug severity breakdown">
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={bugSeverity.data}>
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis dataKey="severity" />
             <YAxis allowDecimals={false} />
             <Tooltip />
-            <Bar dataKey="count" fill="#0f172a" />
+            <Bar dataKey="count" fill={CHART_COLOR} radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </Panel>
@@ -64,7 +70,7 @@ export function AnalyticsPage() {
 
       <Panel title="Mentorship">
         {mentorship.data?.length === 0 ? (
-          <p className="text-sm text-slate-500">No mentorships set up yet.</p>
+          <EmptyState icon={GraduationCap} title="No mentorships set up yet" />
         ) : (
           <ul className="space-y-2 text-sm">
             {mentorship.data?.map((m) => (
@@ -97,10 +103,13 @@ export function AnalyticsPage() {
           </div>
           <div>
             <h3 className="mb-2 text-xs font-medium uppercase text-slate-500">By priority</h3>
-            <ul className="text-sm text-slate-700">
+            <ul className="space-y-1.5 text-sm text-slate-700">
               {completion.data?.byPriority.map((p) => (
-                <li key={p.priority}>
-                  {p.priority}: {Math.round(p.completionRate * 100)}% ({p.total} projects)
+                <li key={p.priority} className="flex items-center gap-2">
+                  <PriorityBadge priority={p.priority as Priority} />
+                  <span>
+                    {Math.round(p.completionRate * 100)}% ({p.total} projects)
+                  </span>
                 </li>
               ))}
             </ul>
@@ -120,11 +129,11 @@ export function AnalyticsPage() {
           </thead>
           <tbody>
             {skillCoverage.data?.map((row) => (
-              <tr key={row.skillId} className={`border-t border-slate-100 ${row.gap > 0 ? "text-red-600" : ""}`}>
+              <tr key={row.skillId} className="border-t border-slate-100">
                 <td className="py-1.5">{row.name}</td>
                 <td className="py-1.5">{row.developersWithSkill}</td>
                 <td className="py-1.5">{row.activeProjectsRequiring}</td>
-                <td className="py-1.5">{row.gap}</td>
+                <td className={`py-1.5 font-medium ${row.gap > 0 ? "text-red-600" : "text-slate-600"}`}>{row.gap}</td>
               </tr>
             ))}
           </tbody>

@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Boxes } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
 import { ApiError } from "../api/client";
 
@@ -35,53 +36,63 @@ export function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50">
-      <div className="w-full max-w-sm rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
-        <h1 className="mb-1 text-2xl font-bold text-slate-900">GuildWork</h1>
-        <p className="mb-6 text-sm text-slate-500">Sign in to your account</p>
-        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-          <div>
-            <label htmlFor="email" className="mb-1 block text-sm font-medium text-slate-700">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
-            />
+      <div className="w-full max-w-sm overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="h-1.5 bg-indigo-600" />
+        <div className="p-8">
+          <div className="mb-6 flex items-center gap-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-indigo-600">
+              <Boxes className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-slate-900">GuildWork</h1>
+              <p className="text-xs text-slate-500">Sign in to your account</p>
+            </div>
           </div>
-          <div>
-            <label htmlFor="password" className="mb-1 block text-sm font-medium text-slate-700">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
-            />
-          </div>
-          {error && (
-            <p role="alert" className="text-sm text-red-600">
-              {error}
-            </p>
-          )}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-60"
-          >
-            {isSubmitting ? "Signing in..." : "Sign in"}
-          </button>
-        </form>
-        <p className="mt-4 text-center text-sm text-slate-500">
-          New developer?{" "}
-          <Link to="/register" className="font-medium text-slate-900 underline">
-            Create an account
-          </Link>
-        </p>
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+            <div>
+              <label htmlFor="email" className="mb-1 block text-sm font-medium text-slate-700">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="mb-1 block text-sm font-medium text-slate-700">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
+            {error && (
+              <p role="alert" className="text-sm text-red-600">
+                {error}
+              </p>
+            )}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60"
+            >
+              {isSubmitting ? "Signing in..." : "Sign in"}
+            </button>
+          </form>
+          <p className="mt-4 text-center text-sm text-slate-500">
+            New developer?{" "}
+            <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-700 hover:underline">
+              Create an account
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

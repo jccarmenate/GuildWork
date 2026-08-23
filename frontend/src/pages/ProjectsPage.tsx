@@ -1,9 +1,12 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
+import { FolderKanban, Plus } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
 import { useClients } from "../api/clients";
 import { useCreateProject, useProjects, type ProjectFilters } from "../api/projects";
 import { RoleGuard } from "../components/RoleGuard";
+import { EmptyState } from "../components/EmptyState";
+import { PriorityBadge, ProjectStatusBadge } from "../components/Badges";
 import type { Priority, ProjectStatus } from "../api/types";
 
 const STATUSES: ProjectStatus[] = ["PLANNING", "ACTIVE", "ON_HOLD", "COMPLETED", "CANCELLED"];
@@ -33,18 +36,18 @@ function NewProjectForm({ onDone }: { onDone: () => void }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mb-6 space-y-3 rounded-lg border border-slate-200 bg-white p-4">
+    <form onSubmit={handleSubmit} className="mb-6 space-y-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <input
           placeholder="Project name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+          className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
         <select
           value={clientId}
           onChange={(e) => setClientId(e.target.value)}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+          className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         >
           <option value="">Select client...</option>
           {clients.data?.map((c) => (
@@ -57,7 +60,7 @@ function NewProjectForm({ onDone }: { onDone: () => void }) {
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+          className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}
@@ -65,11 +68,15 @@ function NewProjectForm({ onDone }: { onDone: () => void }) {
         <button
           type="submit"
           disabled={createProject.isPending}
-          className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800"
+          className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60"
         >
           Create project
         </button>
-        <button type="button" onClick={onDone} className="rounded-md border border-slate-300 px-3 py-2 text-sm">
+        <button
+          type="button"
+          onClick={onDone}
+          className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        >
           Cancel
         </button>
       </div>
@@ -88,12 +95,13 @@ export function ProjectsPage() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-slate-900">Projects</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Projects</h1>
         <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
           <button
             onClick={() => setShowForm((v) => !v)}
-            className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800"
+            className="flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700"
           >
+            <Plus className="h-4 w-4" />
             New Project
           </button>
         </RoleGuard>
@@ -106,11 +114,11 @@ export function ProjectsPage() {
           <input
             placeholder="Search by name..."
             onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value || undefined }))}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+            className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
           />
           <select
             onChange={(e) => setFilters((f) => ({ ...f, status: (e.target.value || undefined) as ProjectStatus }))}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+            className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
           >
             <option value="">All statuses</option>
             {STATUSES.map((s) => (
@@ -121,7 +129,7 @@ export function ProjectsPage() {
           </select>
           <select
             onChange={(e) => setFilters((f) => ({ ...f, priority: (e.target.value || undefined) as Priority }))}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+            className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
           >
             <option value="">All priorities</option>
             {PRIORITIES.map((p) => (
@@ -133,7 +141,7 @@ export function ProjectsPage() {
           {clients.data && clients.data.length > 0 && (
             <select
               onChange={(e) => setFilters((f) => ({ ...f, clientId: e.target.value || undefined }))}
-              className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+              className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             >
               <option value="">All clients</option>
               {clients.data.map((c) => (
@@ -151,11 +159,17 @@ export function ProjectsPage() {
       ) : projects.isError ? (
         <p className="text-sm text-red-600">Failed to load projects.</p>
       ) : projects.data?.length === 0 ? (
-        <p className="text-sm text-slate-500">
-          {isManager ? "No projects match these filters." : "You are not assigned to any projects yet."}
-        </p>
+        <EmptyState
+          icon={FolderKanban}
+          title={isManager ? "No projects match these filters" : "You are not assigned to any projects yet"}
+          description={
+            isManager
+              ? "Try adjusting your filters, or click “New Project” above to create one."
+              : undefined
+          }
+        />
       ) : (
-        <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-50 text-slate-500">
               <tr>
@@ -169,13 +183,17 @@ export function ProjectsPage() {
               {projects.data!.map((p) => (
                 <tr key={p.id} className="border-t border-slate-100 hover:bg-slate-50">
                   <td className="px-4 py-2">
-                    <Link to={`/projects/${p.id}`} className="font-medium text-slate-900 underline">
+                    <Link to={`/projects/${p.id}`} className="font-medium text-indigo-600 hover:text-indigo-700 hover:underline">
                       {p.name}
                     </Link>
                   </td>
                   <td className="px-4 py-2 text-slate-600">{p.client?.name ?? "-"}</td>
-                  <td className="px-4 py-2 text-slate-600">{p.status}</td>
-                  <td className="px-4 py-2 text-slate-600">{p.priority}</td>
+                  <td className="px-4 py-2">
+                    <ProjectStatusBadge status={p.status} />
+                  </td>
+                  <td className="px-4 py-2">
+                    <PriorityBadge priority={p.priority} />
+                  </td>
                 </tr>
               ))}
             </tbody>
