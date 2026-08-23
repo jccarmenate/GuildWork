@@ -137,10 +137,17 @@ export function ParticleNetworkBackground() {
 
         p.x += p.vx;
         p.y += p.vy;
-        if (p.x < 0 || p.x > width) p.vx *= -1;
-        if (p.y < 0 || p.y > height) p.vy *= -1;
-        p.x = Math.max(0, Math.min(width, p.x));
-        p.y = Math.max(0, Math.min(height, p.y));
+
+        // Respawning off-screen particles at a fresh random point (instead of
+        // bouncing them off the edge) avoids the "stuck at the border" look,
+        // and self-corrects any pile-up along an edge after the window shrinks.
+        if (p.x < 0 || p.x > width || p.y < 0 || p.y > height) {
+          p.x = Math.random() * width;
+          p.y = Math.random() * height;
+          const angle = Math.random() * Math.PI * 2;
+          p.vx = Math.cos(angle) * BASE_SPEED;
+          p.vy = Math.sin(angle) * BASE_SPEED;
+        }
       }
 
       drawFrame();
