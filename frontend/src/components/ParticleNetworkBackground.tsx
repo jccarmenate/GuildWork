@@ -11,9 +11,11 @@ const PARTICLE_COUNT = 110;
 const LINK_DISTANCE = 140;
 const MOUSE_RADIUS = 110;
 const MOUSE_FORCE = 0.6;
-const BASE_SPEED = 0.35;
-const JITTER = 0.09;
-const MAX_SPEED = 1.1;
+const BASE_SPEED = 0.45;
+const MIN_SPEED = 0.4;
+const JITTER = 0.12;
+const MAX_SPEED = 1.4;
+const DAMPING = 0.995;
 
 export function ParticleNetworkBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -101,8 +103,9 @@ export function ParticleNetworkBackground() {
     }
 
     // Particles gently push away from the cursor (even through the card on top,
-    // since mouse position is tracked on window) and drift back to a slow ambient
-    // wander otherwise, rather than settling to a dead stop.
+    // since mouse position is tracked on window) and otherwise keep roaming the
+    // full canvas: light damping plus a firm minimum-speed floor stop them from
+    // settling into a local wobble the way heavier friction would.
     function step() {
       for (const p of particles) {
         const dx = p.x - mouse.x;
@@ -119,16 +122,17 @@ export function ParticleNetworkBackground() {
         p.vx += (Math.random() - 0.5) * JITTER;
         p.vy += (Math.random() - 0.5) * JITTER;
 
-        p.vx *= 0.97;
-        p.vy *= 0.97;
+        p.vx *= DAMPING;
+        p.vy *= DAMPING;
 
         const speed = Math.hypot(p.vx, p.vy);
         if (speed > MAX_SPEED) {
           p.vx = (p.vx / speed) * MAX_SPEED;
           p.vy = (p.vy / speed) * MAX_SPEED;
-        } else if (speed < BASE_SPEED * 0.3) {
-          p.vx += (Math.random() - 0.5) * 0.05;
-          p.vy += (Math.random() - 0.5) * 0.05;
+        } else if (speed < MIN_SPEED) {
+          const boost = MIN_SPEED / Math.max(speed, 0.0001);
+          p.vx *= boost;
+          p.vy *= boost;
         }
 
         p.x += p.vx;
