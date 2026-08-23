@@ -20,7 +20,7 @@ export function Layout() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="bg-dot-grid min-h-screen bg-gradient-to-br from-slate-100 via-slate-100 to-indigo-100/70">
       {/* Slim top bar with hamburger, shown below the lg breakpoint only */}
       <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-slate-200 bg-white px-4 py-3 shadow-sm lg:hidden">
         <button
