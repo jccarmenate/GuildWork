@@ -1,0 +1,156 @@
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import {
+  useBugSeverityAnalytics,
+  useMentorshipAnalytics,
+  useProjectCompletionAnalytics,
+  useSkillCoverageAnalytics,
+  useTopPerformersAnalytics,
+  useWorkloadAnalytics
+} from "../api/analytics";
+
+function Panel({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="rounded-lg border border-slate-200 bg-white p-4">
+      <h2 className="mb-3 text-sm font-semibold text-slate-700">{title}</h2>
+      {children}
+    </section>
+  );
+}
+
+export function AnalyticsPage() {
+  const bugSeverity = useBugSeverityAnalytics();
+  const workload = useWorkloadAnalytics();
+  const mentorship = useMentorshipAnalytics();
+  const completion = useProjectCompletionAnalytics();
+  const skillCoverage = useSkillCoverageAnalytics();
+  const topPerformers = useTopPerformersAnalytics();
+
+  return (
+    <div className="space-y-6">
+      <h1 className="text-xl font-bold text-slate-900">Analytics</h1>
+
+      <Panel title="Bug severity breakdown">
+        <ResponsiveContainer width="100%" height={220}>
+          <BarChart data={bugSeverity.data}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="severity" />
+            <YAxis allowDecimals={false} />
+            <Tooltip />
+            <Bar dataKey="count" fill="#0f172a" />
+          </BarChart>
+        </ResponsiveContainer>
+      </Panel>
+
+      <Panel title="Developer workload">
+        <table className="w-full text-left text-sm">
+          <thead className="text-slate-500">
+            <tr>
+              <th className="py-1">Developer</th>
+              <th className="py-1">Active assignments</th>
+              <th className="py-1">Open bugs</th>
+            </tr>
+          </thead>
+          <tbody>
+            {workload.data?.map((row) => (
+              <tr key={row.developerId} className="border-t border-slate-100">
+                <td className="py-1.5">{row.name}</td>
+                <td className="py-1.5">{row.activeAssignments}</td>
+                <td className="py-1.5">{row.openBugs}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Panel>
+
+      <Panel title="Mentorship">
+        {mentorship.data?.length === 0 ? (
+          <p className="text-sm text-slate-500">No mentorships set up yet.</p>
+        ) : (
+          <ul className="space-y-2 text-sm">
+            {mentorship.data?.map((m) => (
+              <li key={m.mentorId}>
+                <span className="font-medium text-slate-900">{m.mentorName}</span>
+                <ul className="ml-4 list-disc text-slate-600">
+                  {m.mentees.map((mentee) => (
+                    <li key={mentee.developerId}>
+                      {mentee.name} — {mentee.resolvedBugCount} bugs resolved
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Panel>
+
+      <Panel title="Project completion rate">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <h3 className="mb-2 text-xs font-medium uppercase text-slate-500">By client</h3>
+            <ul className="text-sm text-slate-700">
+              {completion.data?.byClient.map((c) => (
+                <li key={c.clientId}>
+                  {c.clientName}: {Math.round(c.completionRate * 100)}% ({c.total} projects)
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h3 className="mb-2 text-xs font-medium uppercase text-slate-500">By priority</h3>
+            <ul className="text-sm text-slate-700">
+              {completion.data?.byPriority.map((p) => (
+                <li key={p.priority}>
+                  {p.priority}: {Math.round(p.completionRate * 100)}% ({p.total} projects)
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </Panel>
+
+      <Panel title="Skill coverage">
+        <table className="w-full text-left text-sm">
+          <thead className="text-slate-500">
+            <tr>
+              <th className="py-1">Skill</th>
+              <th className="py-1">Developers</th>
+              <th className="py-1">Active projects requiring</th>
+              <th className="py-1">Gap</th>
+            </tr>
+          </thead>
+          <tbody>
+            {skillCoverage.data?.map((row) => (
+              <tr key={row.skillId} className={`border-t border-slate-100 ${row.gap > 0 ? "text-red-600" : ""}`}>
+                <td className="py-1.5">{row.name}</td>
+                <td className="py-1.5">{row.developersWithSkill}</td>
+                <td className="py-1.5">{row.activeProjectsRequiring}</td>
+                <td className="py-1.5">{row.gap}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Panel>
+
+      <Panel title="Top performers">
+        <table className="w-full text-left text-sm">
+          <thead className="text-slate-500">
+            <tr>
+              <th className="py-1">Developer</th>
+              <th className="py-1">High/critical bugs resolved</th>
+              <th className="py-1">Avg. resolution (hrs)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {topPerformers.data?.map((row) => (
+              <tr key={row.developerId} className="border-t border-slate-100">
+                <td className="py-1.5">{row.name}</td>
+                <td className="py-1.5">{row.resolvedHighSeverityCount}</td>
+                <td className="py-1.5">{row.avgResolutionHours ? row.avgResolutionHours.toFixed(1) : "n/a"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Panel>
+    </div>
+  );
+}
