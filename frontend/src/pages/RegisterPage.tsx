@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Boxes } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
 import { ApiError } from "../api/client";
+import { ParticleNetworkBackground } from "../components/ParticleNetworkBackground";
 
 export function RegisterPage() {
   const { register } = useAuth();
@@ -42,9 +43,8 @@ export function RegisterPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-slate-50 to-indigo-50 px-4">
-      <div className="pointer-events-none absolute -left-24 -top-24 -z-10 h-72 w-72 rounded-full bg-indigo-400 opacity-20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-24 -right-24 -z-10 h-72 w-72 rounded-full bg-violet-400 opacity-20 blur-3xl" />
+    <div className="relative isolate flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-blue-100 via-indigo-50 to-violet-100 px-4">
+      <ParticleNetworkBackground />
       <div className="w-full max-w-sm overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="h-1.5 bg-indigo-600" />
         <div className="p-8">
