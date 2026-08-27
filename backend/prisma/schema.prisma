@@ -122,6 +122,7 @@ model Client {
   contactName  String?
   contactEmail String?
   createdAt    DateTime  @default(now())
+  deletedAt    DateTime?
   projects     Project[]
 }
 
@@ -140,6 +141,7 @@ model Project {
   createdBy       User                @relation("ProjectCreatedBy", fields: [createdByUserId], references: [id])
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
+  deletedAt       DateTime?
   requiredSkills  ProjectSkill[]
   assignments     ProjectAssignment[]
   bugs            Bug[]

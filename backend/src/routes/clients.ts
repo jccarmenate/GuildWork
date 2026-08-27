@@ -18,12 +18,12 @@ const managerRoles = [UserRole.ADMIN, UserRole.PROJECT_MANAGER];
 router.use(requireAuth, requireRole(...managerRoles));
 
 router.get("/", async (_req, res) => {
-  const clients = await prisma.client.findMany({ orderBy: { name: "asc" } });
+  const clients = await prisma.client.findMany({ where: { deletedAt: null }, orderBy: { name: "asc" } });
   res.json(clients);
 });
 
 router.get("/:id", async (req, res) => {
-  const client = await prisma.client.findUnique({ where: { id: req.params.id } });
+  const client = await prisma.client.findFirst({ where: { id: req.params.id, deletedAt: null } });
   if (!client) {
     res.status(404).json({ error: "Client not found" });
     return;
@@ -47,7 +47,7 @@ router.patch("/:id", async (req, res) => {
     res.status(400).json({ error: "Invalid client data", details: parsed.error.flatten() });
     return;
   }
-  const existing = await prisma.client.findUnique({ where: { id: req.params.id } });
+  const existing = await prisma.client.findFirst({ where: { id: req.params.id, deletedAt: null } });
   if (!existing) {
     res.status(404).json({ error: "Client not found" });
     return;
@@ -57,13 +57,23 @@ router.patch("/:id", async (req, res) => {
 });
 
 router.delete("/:id", async (req, res) => {
-  const existing = await prisma.client.findUnique({ where: { id: req.params.id } });
+  const existing = await prisma.client.findFirst({ where: { id: req.params.id, deletedAt: null } });
   if (!existing) {
     res.status(404).json({ error: "Client not found" });
     return;
   }
-  await prisma.client.delete({ where: { id: req.params.id } });
+  await prisma.client.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
   res.status(204).send();
+});
+
+router.post("/:id/restore", async (req, res) => {
+  const existing = await prisma.client.findFirst({ where: { id: req.params.id } });
+  if (!existing || !existing.deletedAt) {
+    res.status(404).json({ error: "Client not found" });
+    return;
+  }
+  const client = await prisma.client.update({ where: { id: req.params.id }, data: { deletedAt: null } });
+  res.json(client);
 });
 
 export default router;

@@ -55,7 +55,7 @@ router.use(requireAuth);
 router.get("/", async (req, res) => {
   const { status, priority, clientId, search } = req.query as Record<string, string | undefined>;
 
-  const where: Record<string, unknown> = {};
+  const where: Record<string, unknown> = { deletedAt: null };
   if (status) where.status = status;
   if (priority) where.priority = priority;
   if (clientId) where.clientId = clientId;
@@ -79,8 +79,8 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/:id", async (req, res) => {
-  const project = await prisma.project.findUnique({
-    where: { id: req.params.id },
+  const project = await prisma.project.findFirst({
+    where: { id: req.params.id, deletedAt: null },
     include: detailInclude
   });
   if (!project) {
@@ -120,7 +120,7 @@ router.patch("/:id", requireRole(...managerRoles), async (req, res) => {
     res.status(400).json({ error: "Invalid project data", details: parsed.error.flatten() });
     return;
   }
-  const existing = await prisma.project.findUnique({ where: { id: req.params.id } });
+  const existing = await prisma.project.findFirst({ where: { id: req.params.id, deletedAt: null } });
   if (!existing) {
     res.status(404).json({ error: "Project not found" });
     return;
@@ -130,13 +130,23 @@ router.patch("/:id", requireRole(...managerRoles), async (req, res) => {
 });
 
 router.delete("/:id", requireRole(...managerRoles), async (req, res) => {
-  const existing = await prisma.project.findUnique({ where: { id: req.params.id } });
+  const existing = await prisma.project.findFirst({ where: { id: req.params.id, deletedAt: null } });
   if (!existing) {
     res.status(404).json({ error: "Project not found" });
     return;
   }
-  await prisma.project.delete({ where: { id: req.params.id } });
+  await prisma.project.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
   res.status(204).send();
+});
+
+router.post("/:id/restore", requireRole(...managerRoles), async (req, res) => {
+  const existing = await prisma.project.findFirst({ where: { id: req.params.id } });
+  if (!existing || !existing.deletedAt) {
+    res.status(404).json({ error: "Project not found" });
+    return;
+  }
+  const project = await prisma.project.update({ where: { id: req.params.id }, data: { deletedAt: null } });
+  res.json(project);
 });
 
 router.post("/:id/assignments", requireRole(...managerRoles), async (req, res) => {
@@ -145,7 +155,7 @@ router.post("/:id/assignments", requireRole(...managerRoles), async (req, res) =
     res.status(400).json({ error: "Invalid assignment data", details: parsed.error.flatten() });
     return;
   }
-  const project = await prisma.project.findUnique({ where: { id: req.params.id } });
+  const project = await prisma.project.findFirst({ where: { id: req.params.id, deletedAt: null } });
   if (!project) {
     res.status(404).json({ error: "Project not found" });
     return;
@@ -174,7 +184,7 @@ router.post("/:id/skills", requireRole(...managerRoles), async (req, res) => {
     res.status(400).json({ error: "Invalid skill data", details: parsed.error.flatten() });
     return;
   }
-  const project = await prisma.project.findUnique({ where: { id: req.params.id } });
+  const project = await prisma.project.findFirst({ where: { id: req.params.id, deletedAt: null } });
   if (!project) {
     res.status(404).json({ error: "Project not found" });
     return;
@@ -203,7 +213,7 @@ router.post("/:id/bugs", requireRole(...managerRoles), async (req, res) => {
     res.status(400).json({ error: "Invalid bug data", details: parsed.error.flatten() });
     return;
   }
-  const project = await prisma.project.findUnique({ where: { id: req.params.id } });
+  const project = await prisma.project.findFirst({ where: { id: req.params.id, deletedAt: null } });
   if (!project) {
     res.status(404).json({ error: "Project not found" });
     return;
@@ -215,8 +225,8 @@ router.post("/:id/bugs", requireRole(...managerRoles), async (req, res) => {
 });
 
 router.get("/:id/report.pdf", reportRateLimit, async (req, res) => {
-  const project = await prisma.project.findUnique({
-    where: { id: req.params.id },
+  const project = await prisma.project.findFirst({
+    where: { id: req.params.id, deletedAt: null },
     include: detailInclude
   });
   if (!project) {

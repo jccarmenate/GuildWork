@@ -119,7 +119,7 @@ describe("Projects: developer-scoped list", () => {
 
 describe("Projects: detail visibility for Developers", () => {
   it("Developer requesting a non-assigned project's detail gets 404, not 403", async () => {
-    prismaMock.project.findUnique.mockResolvedValue({
+    prismaMock.project.findFirst.mockResolvedValue({
       ...fakeProject(),
       client: { id: "client-1", name: "Northwind" },
       requiredSkills: [],
@@ -134,7 +134,7 @@ describe("Projects: detail visibility for Developers", () => {
   });
 
   it("Developer requesting their own assigned project's detail gets 200", async () => {
-    prismaMock.project.findUnique.mockResolvedValue({
+    prismaMock.project.findFirst.mockResolvedValue({
       ...fakeProject(),
       client: { id: "client-1", name: "Northwind" },
       requiredSkills: [],

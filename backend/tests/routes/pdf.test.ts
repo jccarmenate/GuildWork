@@ -46,7 +46,7 @@ const fullProject = {
 
 describe("GET /api/projects/:id/report.pdf", () => {
   it("streams a non-trivial PDF for a PM", async () => {
-    prismaMock.project.findUnique.mockResolvedValue(fullProject as never);
+    prismaMock.project.findFirst.mockResolvedValue(fullProject as never);
     const pmToken = signAccessToken({ sub: "pm-1", email: "pm@example.com", role: UserRole.PROJECT_MANAGER });
 
     const res = await request(app)
@@ -65,7 +65,7 @@ describe("GET /api/projects/:id/report.pdf", () => {
   });
 
   it("returns 404 for a project the requesting Developer is not assigned to", async () => {
-    prismaMock.project.findUnique.mockResolvedValue(fullProject as never);
+    prismaMock.project.findFirst.mockResolvedValue(fullProject as never);
     prismaMock.developerProfile.findUnique.mockResolvedValue({ id: "some-other-profile", userId: "dev-user-1" } as never);
     const devToken = signAccessToken({ sub: "dev-user-1", email: "dev@example.com", role: UserRole.DEVELOPER });
 
