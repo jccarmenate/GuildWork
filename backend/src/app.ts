@@ -52,21 +52,25 @@ export function createApp() {
   app.use("/api/analytics", analyticsRoutes);
   app.use("/api/audit-log", auditLogRoutes);
 
-  app.get("/api/openapi.json", (_req, res) => {
-    res.json(openApiSpec);
-  });
-  // Swagger UI's bundled init script is inline, which the app-wide CSP
-  // (already set by the helmet() above) blocks — dropped only for this
-  // documentation route, nowhere else.
-  app.use(
-    "/api/docs",
-    (_req: express.Request, res: express.Response, next: express.NextFunction) => {
-      res.removeHeader("Content-Security-Policy");
-      next();
-    },
-    swaggerUi.serve,
-    swaggerUi.setup(openApiSpec)
-  );
+  // The API map itself isn't sensitive, but there's no reason to hand it to
+  // the open internet either — only mounted outside production.
+  if (process.env.NODE_ENV !== "production") {
+    app.get("/api/openapi.json", (_req, res) => {
+      res.json(openApiSpec);
+    });
+    // Swagger UI's bundled init script is inline, which the app-wide CSP
+    // (already set by the helmet() above) blocks — dropped only for this
+    // documentation route, nowhere else.
+    app.use(
+      "/api/docs",
+      (_req: express.Request, res: express.Response, next: express.NextFunction) => {
+        res.removeHeader("Content-Security-Policy");
+        next();
+      },
+      swaggerUi.serve,
+      swaggerUi.setup(openApiSpec)
+    );
+  }
 
   app.use((_req, res) => {
     res.status(404).json({ error: "Not found" });

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { prismaMock } from "../mocks/prisma.js";
 
 vi.mock("../../src/lib/prisma.js", () => ({ prisma: prismaMock }));
@@ -27,5 +27,24 @@ describe("API documentation", () => {
 
     expect(res.status).toBe(200);
     expect(res.headers["content-type"]).toContain("text/html");
+  });
+});
+
+describe("API documentation in production", () => {
+  const originalNodeEnv = process.env.NODE_ENV;
+
+  afterEach(() => {
+    process.env.NODE_ENV = originalNodeEnv;
+  });
+
+  it("is not mounted when NODE_ENV=production", async () => {
+    process.env.NODE_ENV = "production";
+    const prodApp = createApp();
+
+    const docsRes = await request(prodApp).get("/api/docs/");
+    const specRes = await request(prodApp).get("/api/openapi.json");
+
+    expect(docsRes.status).toBe(404);
+    expect(specRes.status).toBe(404);
   });
 });
