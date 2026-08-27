@@ -4,11 +4,19 @@ import { z } from "zod";
 import { UserRole } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 import { hashPassword, verifyPassword } from "../auth/hash.js";
-import { hashRefreshToken, refreshTokenExpiry, signAccessToken, generateRefreshToken } from "../auth/tokens.js";
+import {
+  hashRefreshToken,
+  refreshTokenExpiry,
+  signAccessToken,
+  generateRefreshToken,
+  generateRefreshToken as generateOpaqueToken,
+  hashRefreshToken as hashOpaqueToken
+} from "../auth/tokens.js";
 import { issueTokenPair } from "../auth/issueTokens.js";
 import { clearRefreshCookie, setRefreshCookie, REFRESH_COOKIE_NAME } from "../auth/cookies.js";
 import { requireAuth, requireRole } from "../auth/middleware.js";
 import { recordAuditLog } from "../lib/auditLog.js";
+import { sendEmail } from "../lib/email.js";
 
 const router = Router();
 
@@ -40,6 +48,17 @@ const createUserSchema = z.object({
 const changeRoleSchema = z.object({
   role: z.nativeEnum(UserRole)
 });
+
+const forgotPasswordSchema = z.object({
+  email: z.string().email()
+});
+
+const resetPasswordSchema = z.object({
+  token: z.string().min(1),
+  password: z.string().min(8)
+});
+
+const RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
 
 router.post("/register", authRateLimit, async (req, res) => {
   const parsed = registerSchema.safeParse(req.body);
@@ -171,6 +190,74 @@ router.post("/logout", async (req, res) => {
   }
   clearRefreshCookie(res);
   res.status(204).send();
+});
+
+router.post("/forgot-password", authRateLimit, async (req, res) => {
+  const parsed = forgotPasswordSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid email" });
+    return;
+  }
+
+  // Always respond the same way regardless of whether the email exists, so
+  // this endpoint can't be used to enumerate registered accounts.
+  const user = await prisma.user.findUnique({ where: { email: parsed.data.email } });
+  if (user) {
+    const rawToken = generateOpaqueToken();
+    await prisma.passwordResetToken.create({
+      data: {
+        userId: user.id,
+        tokenHash: hashOpaqueToken(rawToken),
+        expiresAt: new Date(Date.now() + RESET_TOKEN_TTL_MS)
+      }
+    });
+
+    const resetUrl = `${process.env.FRONTEND_ORIGIN}/reset-password?token=${rawToken}`;
+    await sendEmail({
+      to: user.email,
+      subject: "Reset your GuildWork password",
+      text: `Use this link to reset your password (valid for 1 hour): ${resetUrl}`
+    });
+  }
+
+  res.status(202).json({ message: "If that email is registered, a reset link has been sent." });
+});
+
+router.post("/reset-password", authRateLimit, async (req, res) => {
+  const parsed = resetPasswordSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid reset request" });
+    return;
+  }
+
+  const tokenHash = hashOpaqueToken(parsed.data.token);
+  const stored = await prisma.passwordResetToken.findFirst({ where: { tokenHash } });
+
+  const invalid = !stored || stored.usedAt || stored.expiresAt < new Date();
+  if (invalid) {
+    res.status(400).json({ error: "Invalid or expired reset token" });
+    return;
+  }
+
+  const passwordHash = await hashPassword(parsed.data.password);
+  await prisma.user.update({ where: { id: stored.userId }, data: { passwordHash } });
+  await prisma.passwordResetToken.update({ where: { id: stored.id }, data: { usedAt: new Date() } });
+
+  // A password reset means any session started before the user regained
+  // control of their account should not survive it.
+  await prisma.refreshToken.updateMany({
+    where: { userId: stored.userId, revokedAt: null },
+    data: { revokedAt: new Date() }
+  });
+
+  await recordAuditLog({
+    actorUserId: stored.userId,
+    action: "PASSWORD_RESET",
+    entityType: "User",
+    entityId: stored.userId
+  });
+
+  res.json({ message: "Password updated. Please sign in again." });
 });
 
 router.get("/me", requireAuth, async (req, res) => {

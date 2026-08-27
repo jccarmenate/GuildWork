@@ -69,6 +69,7 @@ model User {
   projectsCreated Project[]         @relation("ProjectCreatedBy")
   bugsReported    Bug[]             @relation("BugReportedBy")
   auditLogs       AuditLog[]
+  passwordResetTokens PasswordResetToken[]
 }
 
 model RefreshToken {
@@ -169,6 +170,18 @@ model ProjectAssignment {
   assignedAt      DateTime         @default(now())
 
   @@unique([projectId, developerId])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
 }
 
 model AuditLog {
