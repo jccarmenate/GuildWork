@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { FolderKanban, Plus } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
@@ -7,6 +7,7 @@ import { useCreateProject, useProjects, type ProjectFilters } from "../api/proje
 import { RoleGuard } from "../components/RoleGuard";
 import { EmptyState } from "../components/EmptyState";
 import { Spinner } from "../components/Spinner";
+import { Pagination } from "../components/Pagination";
 import { PriorityBadge, ProjectStatusBadge } from "../components/Badges";
 import type { Priority, ProjectStatus } from "../api/types";
 
@@ -14,7 +15,7 @@ const STATUSES: ProjectStatus[] = ["PLANNING", "ACTIVE", "ON_HOLD", "COMPLETED",
 const PRIORITIES: Priority[] = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
 
 function NewProjectForm({ onDone }: { onDone: () => void }) {
-  const clients = useClients();
+  const clients = useClients({ pageSize: 100 });
   const createProject = useCreateProject();
   const [name, setName] = useState("");
   const [clientId, setClientId] = useState("");
@@ -51,7 +52,7 @@ function NewProjectForm({ onDone }: { onDone: () => void }) {
           className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         >
           <option value="">Select client...</option>
-          {clients.data?.map((c) => (
+          {clients.data?.items.map((c) => (
             <option key={c.id} value={c.id}>
               {c.name}
             </option>
@@ -89,9 +90,14 @@ export function ProjectsPage() {
   const { user } = useAuth();
   const isManager = user?.role === "ADMIN" || user?.role === "PROJECT_MANAGER";
   const [filters, setFilters] = useState<ProjectFilters>({});
+  const [page, setPage] = useState(1);
   const [showForm, setShowForm] = useState(false);
-  const projects = useProjects(filters);
-  const clients = useClients(isManager);
+  const projects = useProjects(filters, page);
+  const clients = useClients({ enabled: isManager, pageSize: 100 });
+
+  useEffect(() => {
+    setPage(1);
+  }, [filters]);
 
   return (
     <div>
@@ -139,13 +145,13 @@ export function ProjectsPage() {
               </option>
             ))}
           </select>
-          {clients.data && clients.data.length > 0 && (
+          {clients.data && clients.data.items.length > 0 && (
             <select
               onChange={(e) => setFilters((f) => ({ ...f, clientId: e.target.value || undefined }))}
               className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             >
               <option value="">All clients</option>
-              {clients.data.map((c) => (
+              {clients.data.items.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
                 </option>
@@ -159,7 +165,7 @@ export function ProjectsPage() {
         <Spinner label="Loading projects..." />
       ) : projects.isError ? (
         <p className="text-sm text-red-600">Failed to load projects.</p>
-      ) : projects.data?.length === 0 ? (
+      ) : projects.data?.items.length === 0 ? (
         <EmptyState
           icon={FolderKanban}
           title={isManager ? "No projects match these filters" : "You are not assigned to any projects yet"}
@@ -170,38 +176,46 @@ export function ProjectsPage() {
           }
         />
       ) : (
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 text-slate-500">
-                <tr>
-                  <th className="px-4 py-2">Name</th>
-                  <th className="px-4 py-2">Client</th>
-                  <th className="px-4 py-2">Status</th>
-                  <th className="px-4 py-2">Priority</th>
-                </tr>
-              </thead>
-              <tbody>
-                {projects.data!.map((p) => (
-                  <tr key={p.id} className="border-t border-slate-100 transition-colors duration-150 hover:bg-slate-50">
-                    <td className="px-4 py-2">
-                      <Link to={`/projects/${p.id}`} className="font-medium text-indigo-600 hover:text-indigo-700 hover:underline">
-                        {p.name}
-                      </Link>
-                    </td>
-                    <td className="px-4 py-2 text-slate-600">{p.client?.name ?? "-"}</td>
-                    <td className="px-4 py-2">
-                      <ProjectStatusBadge status={p.status} />
-                    </td>
-                    <td className="px-4 py-2">
-                      <PriorityBadge priority={p.priority} />
-                    </td>
+        <>
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-slate-50 text-slate-500">
+                  <tr>
+                    <th className="px-4 py-2">Name</th>
+                    <th className="px-4 py-2">Client</th>
+                    <th className="px-4 py-2">Status</th>
+                    <th className="px-4 py-2">Priority</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {projects.data!.items.map((p) => (
+                    <tr key={p.id} className="border-t border-slate-100 transition-colors duration-150 hover:bg-slate-50">
+                      <td className="px-4 py-2">
+                        <Link to={`/projects/${p.id}`} className="font-medium text-indigo-600 hover:text-indigo-700 hover:underline">
+                          {p.name}
+                        </Link>
+                      </td>
+                      <td className="px-4 py-2 text-slate-600">{p.client?.name ?? "-"}</td>
+                      <td className="px-4 py-2">
+                        <ProjectStatusBadge status={p.status} />
+                      </td>
+                      <td className="px-4 py-2">
+                        <PriorityBadge priority={p.priority} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+          <Pagination
+            page={projects.data!.page}
+            pageSize={projects.data!.pageSize}
+            total={projects.data!.total}
+            onPageChange={setPage}
+          />
+        </>
       )}
     </div>
   );

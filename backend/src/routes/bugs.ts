@@ -3,6 +3,7 @@ import { z } from "zod";
 import { BugStatus, Severity, UserRole } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 import { requireAuth, requireRole } from "../auth/middleware.js";
+import { parsePagination, toPage } from "../lib/pagination.js";
 
 const router = Router();
 
@@ -28,22 +29,29 @@ const developerUpdateSchema = z.object({
 router.use(requireAuth);
 
 router.get("/", async (req, res) => {
+  const pagination = parsePagination(req.query as Record<string, unknown>);
+  const skip = (pagination.page - 1) * pagination.pageSize;
+
   if (req.user!.role === UserRole.DEVELOPER) {
     const profile = await prisma.developerProfile.findUnique({ where: { userId: req.user!.id } });
     if (!profile) {
-      res.json([]);
+      res.json(toPage([], 0, pagination));
       return;
     }
-    const bugs = await prisma.bug.findMany({
-      where: { assignedToDeveloperId: profile.id },
-      orderBy: { createdAt: "desc" }
-    });
-    res.json(bugs);
+    const where = { assignedToDeveloperId: profile.id };
+    const [bugs, total] = await Promise.all([
+      prisma.bug.findMany({ where, orderBy: { createdAt: "desc" }, skip, take: pagination.pageSize }),
+      prisma.bug.count({ where })
+    ]);
+    res.json(toPage(bugs, total, pagination));
     return;
   }
 
-  const bugs = await prisma.bug.findMany({ orderBy: { createdAt: "desc" } });
-  res.json(bugs);
+  const [bugs, total] = await Promise.all([
+    prisma.bug.findMany({ orderBy: { createdAt: "desc" }, skip, take: pagination.pageSize }),
+    prisma.bug.count()
+  ]);
+  res.json(toPage(bugs, total, pagination));
 });
 
 router.patch("/:id", async (req, res) => {

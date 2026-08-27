@@ -3,10 +3,12 @@ import { Building2, Plus, Trash2 } from "lucide-react";
 import { useClients, useCreateClient, useDeleteClient, useUpdateClient } from "../api/clients";
 import { EmptyState } from "../components/EmptyState";
 import { Spinner } from "../components/Spinner";
+import { Pagination } from "../components/Pagination";
 import type { Client } from "../api/types";
 
 export function ClientsPage() {
-  const clients = useClients();
+  const [page, setPage] = useState(1);
+  const clients = useClients({ page });
   const createClient = useCreateClient();
   const updateClient = useUpdateClient();
   const deleteClient = useDeleteClient();
@@ -57,9 +59,10 @@ export function ClientsPage() {
 
       {clients.isLoading ? (
         <Spinner label="Loading clients..." />
-      ) : clients.data?.length === 0 ? (
+      ) : clients.data?.items.length === 0 ? (
         <EmptyState icon={Building2} title="No clients yet" description="Add your first client using the form above." />
       ) : (
+        <>
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -72,7 +75,7 @@ export function ClientsPage() {
                 </tr>
               </thead>
               <tbody>
-                {clients.data!.map((c) => (
+                {clients.data!.items.map((c) => (
                   <tr key={c.id} className="border-t border-slate-100 transition-colors duration-150 hover:bg-slate-50">
                     <td className="px-4 py-2">
                       {editingId === c.id ? (
@@ -111,6 +114,8 @@ export function ClientsPage() {
             </table>
           </div>
         </div>
+        <Pagination page={clients.data!.page} pageSize={clients.data!.pageSize} total={clients.data!.total} onPageChange={setPage} />
+        </>
       )}
     </div>
   );

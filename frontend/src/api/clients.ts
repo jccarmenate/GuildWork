@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "./client";
-import type { Client } from "./types";
+import type { Client, Page } from "./types";
 
-export function useClients(enabled = true) {
+export function useClients(options: { enabled?: boolean; page?: number; pageSize?: number } = {}) {
+  const { enabled = true, page = 1, pageSize = 25 } = options;
   return useQuery({
-    queryKey: ["clients"],
-    queryFn: () => apiFetch<Client[]>("/api/clients"),
+    queryKey: ["clients", page, pageSize],
+    queryFn: () => apiFetch<Page<Client>>(`/api/clients?page=${page}&pageSize=${pageSize}`),
     enabled
   });
 }

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "./client";
-import type { Bug, Priority, Project, ProjectStatus } from "./types";
+import type { Bug, Page, Priority, Project, ProjectStatus } from "./types";
 
 export interface ProjectFilters {
   status?: ProjectStatus;
@@ -9,20 +9,21 @@ export interface ProjectFilters {
   search?: string;
 }
 
-function toQueryString(filters: ProjectFilters): string {
+function toQueryString(filters: ProjectFilters, page: number, pageSize: number): string {
   const params = new URLSearchParams();
   if (filters.status) params.set("status", filters.status);
   if (filters.priority) params.set("priority", filters.priority);
   if (filters.clientId) params.set("clientId", filters.clientId);
   if (filters.search) params.set("search", filters.search);
-  const query = params.toString();
-  return query ? `?${query}` : "";
+  params.set("page", String(page));
+  params.set("pageSize", String(pageSize));
+  return `?${params.toString()}`;
 }
 
-export function useProjects(filters: ProjectFilters = {}) {
+export function useProjects(filters: ProjectFilters = {}, page = 1, pageSize = 25) {
   return useQuery({
-    queryKey: ["projects", filters],
-    queryFn: () => apiFetch<Project[]>(`/api/projects${toQueryString(filters)}`)
+    queryKey: ["projects", filters, page, pageSize],
+    queryFn: () => apiFetch<Page<Project>>(`/api/projects${toQueryString(filters, page, pageSize)}`)
   });
 }
 

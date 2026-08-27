@@ -3,6 +3,7 @@ import { z } from "zod";
 import { Proficiency, Seniority, UserRole } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 import { requireAuth, requireRole } from "../auth/middleware.js";
+import { parsePagination, toPage } from "../lib/pagination.js";
 
 const router = Router();
 
@@ -35,9 +36,17 @@ const addSkillSchema = z.object({
 
 router.use(requireAuth);
 
-router.get("/", requireRole(...managerRoles), async (_req, res) => {
-  const developers = await prisma.developerProfile.findMany({ include: profileInclude });
-  res.json(developers);
+router.get("/", requireRole(...managerRoles), async (req, res) => {
+  const pagination = parsePagination(req.query as Record<string, unknown>);
+  const [developers, total] = await Promise.all([
+    prisma.developerProfile.findMany({
+      include: profileInclude,
+      skip: (pagination.page - 1) * pagination.pageSize,
+      take: pagination.pageSize
+    }),
+    prisma.developerProfile.count()
+  ]);
+  res.json(toPage(developers, total, pagination));
 });
 
 router.get("/me", async (req, res) => {

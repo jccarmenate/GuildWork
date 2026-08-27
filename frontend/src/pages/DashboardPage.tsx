@@ -87,12 +87,12 @@ function DeveloperDashboard() {
   const bugs = useMyBugs();
   const projects = useProjects();
 
-  const openBugs = bugs.data?.filter((b) => b.status === "OPEN" || b.status === "IN_PROGRESS") ?? [];
+  const openBugs = bugs.data?.items.filter((b) => b.status === "OPEN" || b.status === "IN_PROGRESS") ?? [];
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <StatTile label="Assigned projects" value={projects.data?.length ?? 0} icon={FolderKanban} tint="indigo" />
+        <StatTile label="Assigned projects" value={projects.data?.items.length ?? 0} icon={FolderKanban} tint="indigo" />
         <StatTile label="Open bugs" value={openBugs.length} icon={BugIcon} tint="amber" />
         <StatTile label="Skills logged" value={profile.data?.skills.length ?? 0} icon={Sparkles} tint="violet" />
       </div>
@@ -101,11 +101,11 @@ function DeveloperDashboard() {
         <h2 className="mb-3 text-sm font-semibold text-slate-700">Your assigned projects</h2>
         {projects.isLoading ? (
           <Spinner />
-        ) : projects.data?.length === 0 ? (
+        ) : projects.data?.items.length === 0 ? (
           <EmptyState icon={FolderKanban} title="You are not assigned to any projects yet" />
         ) : (
           <ul className="divide-y divide-slate-100">
-            {projects.data!.map((p) => (
+            {projects.data!.items.map((p) => (
               <li key={p.id} className="flex items-center justify-between py-2.5 text-sm">
                 <span className="font-medium text-slate-900">{p.name}</span>
                 <ProjectStatusBadge status={p.status} />

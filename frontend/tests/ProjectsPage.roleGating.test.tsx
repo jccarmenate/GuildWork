@@ -19,10 +19,10 @@ function renderProjectsPageAs(role: "DEVELOPER" | "ADMIN") {
       return jsonResponse({ id: "u1", email: "u@example.com", name: "Test User", role });
     }
     if (url.includes("/api/projects")) {
-      return jsonResponse([]);
+      return jsonResponse({ items: [], total: 0, page: 1, pageSize: 25 });
     }
     if (url.includes("/api/clients")) {
-      return jsonResponse([]);
+      return jsonResponse({ items: [], total: 0, page: 1, pageSize: 25 });
     }
     return jsonResponse({}, 200);
   });

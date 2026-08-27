@@ -5,6 +5,7 @@ import { prisma } from "../lib/prisma.js";
 import { requireAuth, requireRole } from "../auth/middleware.js";
 import { generateProjectReportPdf } from "../pdf/projectReport.js";
 import { reportRateLimit } from "../middleware/rateLimit.js";
+import { parsePagination, toPage } from "../lib/pagination.js";
 
 const router = Router();
 
@@ -70,12 +71,18 @@ router.get("/", async (req, res) => {
     where.assignments = { some: { developerId: devId } };
   }
 
-  const projects = await prisma.project.findMany({
-    where,
-    include: { client: true },
-    orderBy: { createdAt: "desc" }
-  });
-  res.json(projects);
+  const pagination = parsePagination(req.query as Record<string, unknown>);
+  const [projects, total] = await Promise.all([
+    prisma.project.findMany({
+      where,
+      include: { client: true },
+      orderBy: { createdAt: "desc" },
+      skip: (pagination.page - 1) * pagination.pageSize,
+      take: pagination.pageSize
+    }),
+    prisma.project.count({ where })
+  ]);
+  res.json(toPage(projects, total, pagination));
 });
 
 router.get("/:id", async (req, res) => {

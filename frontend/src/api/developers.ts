@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "./client";
-import type { DeveloperProfile, Proficiency } from "./types";
+import type { DeveloperProfile, Page, Proficiency } from "./types";
 
-export function useDevelopers(enabled = true) {
+export function useDevelopers(options: { enabled?: boolean; page?: number; pageSize?: number } = {}) {
+  const { enabled = true, page = 1, pageSize = 25 } = options;
   return useQuery({
-    queryKey: ["developers"],
-    queryFn: () => apiFetch<DeveloperProfile[]>("/api/developers"),
+    queryKey: ["developers", page, pageSize],
+    queryFn: () => apiFetch<Page<DeveloperProfile>>(`/api/developers?page=${page}&pageSize=${pageSize}`),
     enabled
   });
 }

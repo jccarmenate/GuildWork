@@ -77,6 +77,13 @@ export interface Bug {
   resolvedAt: string | null;
 }
 
+export interface Page<T> {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 export interface Project {
   id: string;
   clientId: string;

@@ -92,7 +92,7 @@ export function ProjectDetailPage() {
   const isManager = user?.role === "ADMIN" || user?.role === "PROJECT_MANAGER";
   const project = useProject(id);
   const myProfile = useMyDeveloperProfile(!isManager);
-  const developers = useDevelopers(isManager);
+  const developers = useDevelopers({ enabled: isManager, pageSize: 100 });
   const skills = useSkills();
   const assignDeveloper = useAssignDeveloper(id ?? "");
   const unassignDeveloper = useUnassignDeveloper(id ?? "");
@@ -179,8 +179,8 @@ export function ProjectDetailPage() {
             className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
           >
             <option value="">Assign a developer...</option>
-            {developers.data
-              ?.filter((d) => !assignedIds.has(d.id))
+            {developers.data?.items
+              .filter((d) => !assignedIds.has(d.id))
               .map((d) => (
                 <option key={d.id} value={d.id}>
                   {d.user.name}

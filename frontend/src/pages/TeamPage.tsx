@@ -7,11 +7,13 @@ import { useSkills } from "../api/skills";
 import { RoleGuard } from "../components/RoleGuard";
 import { EmptyState } from "../components/EmptyState";
 import { Spinner } from "../components/Spinner";
+import { Pagination } from "../components/Pagination";
 import { apiFetch } from "../api/client";
 import type { UserRole } from "../api/types";
 
 function TeamRosterView() {
-  const developers = useDevelopers();
+  const [page, setPage] = useState(1);
+  const developers = useDevelopers({ page });
   const workload = useWorkloadAnalytics();
   const { user } = useAuth();
 
@@ -21,11 +23,12 @@ function TeamRosterView() {
 
   const workloadByDevId = new Map(workload.data?.map((w) => [w.developerId, w]));
 
-  if (developers.data?.length === 0) {
+  if (developers.data?.items.length === 0) {
     return <EmptyState icon={Users} title="No developers yet" />;
   }
 
   return (
+    <div>
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
@@ -41,7 +44,7 @@ function TeamRosterView() {
             </tr>
           </thead>
           <tbody>
-            {developers.data?.map((d) => {
+            {developers.data?.items.map((d) => {
               const w = workloadByDevId.get(d.id);
               return (
                 <tr key={d.id} className="border-t border-slate-100 transition-colors duration-150 hover:bg-slate-50">
@@ -70,6 +73,13 @@ function TeamRosterView() {
           </tbody>
         </table>
       </div>
+    </div>
+    <Pagination
+      page={developers.data!.page}
+      pageSize={developers.data!.pageSize}
+      total={developers.data!.total}
+      onPageChange={setPage}
+    />
     </div>
   );
 }

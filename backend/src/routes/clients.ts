@@ -3,6 +3,7 @@ import { z } from "zod";
 import { UserRole } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 import { requireAuth, requireRole } from "../auth/middleware.js";
+import { parsePagination, toPage } from "../lib/pagination.js";
 
 const router = Router();
 
@@ -17,9 +18,19 @@ const managerRoles = [UserRole.ADMIN, UserRole.PROJECT_MANAGER];
 
 router.use(requireAuth, requireRole(...managerRoles));
 
-router.get("/", async (_req, res) => {
-  const clients = await prisma.client.findMany({ where: { deletedAt: null }, orderBy: { name: "asc" } });
-  res.json(clients);
+router.get("/", async (req, res) => {
+  const pagination = parsePagination(req.query as Record<string, unknown>);
+  const where = { deletedAt: null };
+  const [clients, total] = await Promise.all([
+    prisma.client.findMany({
+      where,
+      orderBy: { name: "asc" },
+      skip: (pagination.page - 1) * pagination.pageSize,
+      take: pagination.pageSize
+    }),
+    prisma.client.count({ where })
+  ]);
+  res.json(toPage(clients, total, pagination));
 });
 
 router.get("/:id", async (req, res) => {

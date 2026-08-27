@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "./client";
-import type { Bug } from "./types";
+import type { Bug, Page } from "./types";
 
-export function useMyBugs() {
+export function useMyBugs(page = 1, pageSize = 25) {
   return useQuery({
-    queryKey: ["bugs", "mine"],
-    queryFn: () => apiFetch<Bug[]>("/api/bugs")
+    queryKey: ["bugs", "mine", page, pageSize],
+    queryFn: () => apiFetch<Page<Bug>>(`/api/bugs?page=${page}&pageSize=${pageSize}`)
   });
 }
 
