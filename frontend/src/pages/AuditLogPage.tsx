@@ -42,7 +42,7 @@ export function AuditLogPage() {
 
       {auditLog.isLoading ? (
         <Spinner label="Loading audit log..." />
-      ) : auditLog.data?.items.length === 0 ? (
+      ) : !auditLog.data || auditLog.data.items.length === 0 ? (
         <EmptyState icon={History} title="No audited activity yet" />
       ) : (
         <>

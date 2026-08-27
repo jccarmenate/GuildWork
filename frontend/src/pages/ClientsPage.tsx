@@ -59,7 +59,7 @@ export function ClientsPage() {
 
       {clients.isLoading ? (
         <Spinner label="Loading clients..." />
-      ) : clients.data?.items.length === 0 ? (
+      ) : !clients.data || clients.data.items.length === 0 ? (
         <EmptyState icon={Building2} title="No clients yet" description="Add your first client using the form above." />
       ) : (
         <>

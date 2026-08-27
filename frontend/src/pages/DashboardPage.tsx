@@ -83,7 +83,7 @@ function DeveloperDashboard() {
         <h2 className="mb-3 text-sm font-semibold text-ink-600">Your assigned projects</h2>
         {projects.isLoading ? (
           <Spinner />
-        ) : projects.data?.items.length === 0 ? (
+        ) : !projects.data || projects.data.items.length === 0 ? (
           <EmptyState icon={FolderKanban} title="You are not assigned to any projects yet" />
         ) : (
           <ul className="divide-y divide-line">

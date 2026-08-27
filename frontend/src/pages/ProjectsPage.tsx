@@ -173,7 +173,9 @@ export function ProjectsPage() {
         <Spinner label="Loading projects..." />
       ) : projects.isError ? (
         <p className="text-sm text-red-600">Failed to load projects.</p>
-      ) : projects.data?.items.length === 0 ? (
+      ) : !projects.data ? (
+        <p className="text-sm text-red-600">Failed to load projects.</p>
+      ) : projects.data.items.length === 0 ? (
         <EmptyState
           icon={FolderKanban}
           title={isManager ? "No projects match these filters" : "You are not assigned to any projects yet"}
