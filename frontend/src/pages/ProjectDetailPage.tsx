@@ -39,6 +39,13 @@ import { Spinner } from "../components/Spinner";
 import { BugStatusBadge, ProjectStatusBadge, PriorityBadge, SeverityBadge } from "../components/Badges";
 import type { Bug, Severity } from "../api/types";
 
+const SEVERITY_STRIPE: Record<Severity, string> = {
+  LOW: "border-l-ink-200",
+  MEDIUM: "border-l-sky-400",
+  HIGH: "border-l-orange-400",
+  CRITICAL: "border-l-red-500"
+};
+
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -67,21 +74,21 @@ function BugDetailsPanel({ bug, canParticipate }: { bug: Bug; canParticipate: bo
   return (
     <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2">
       <div>
-        <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Comments</h3>
+        <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-500">Comments</h3>
         {comments.isLoading ? (
           <Spinner label="Loading comments..." />
         ) : (
           <ul className="mb-3 max-h-56 space-y-2 overflow-y-auto pr-1">
             {comments.data?.map((c) => (
-              <li key={c.id} className="rounded-md bg-slate-50 px-3 py-2 text-sm">
-                <div className="mb-0.5 flex items-center justify-between text-xs text-slate-500">
-                  <span className="font-medium text-slate-700">{c.author.name}</span>
+              <li key={c.id} className="rounded-md bg-parchment px-3 py-2 text-sm">
+                <div className="mb-0.5 flex items-center justify-between text-xs text-ink-500">
+                  <span className="font-medium text-ink-600">{c.author.name}</span>
                   <span>{new Date(c.createdAt).toLocaleString()}</span>
                 </div>
-                <p className="whitespace-pre-wrap text-slate-700">{c.body}</p>
+                <p className="whitespace-pre-wrap text-ink-600">{c.body}</p>
               </li>
             ))}
-            {comments.data?.length === 0 && <p className="text-sm text-slate-500">No comments yet.</p>}
+            {comments.data?.length === 0 && <p className="text-sm text-ink-500">No comments yet.</p>}
           </ul>
         )}
         {canParticipate && (
@@ -91,7 +98,7 @@ function BugDetailsPanel({ bug, canParticipate }: { bug: Bug; canParticipate: bo
               onChange={(e) => setCommentBody(e.target.value)}
               placeholder="Add a comment..."
               rows={1}
-              className="flex-1 resize-none rounded-md border border-slate-300 px-2 py-1.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="flex-1 resize-none rounded-md border border-line px-2 py-1.5 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
             />
             <button
               onClick={() => {
@@ -99,7 +106,7 @@ function BugDetailsPanel({ bug, canParticipate }: { bug: Bug; canParticipate: bo
                 addComment.mutate(commentBody, { onSuccess: () => setCommentBody("") });
               }}
               disabled={addComment.isPending}
-              className="flex items-center gap-1 rounded-md bg-indigo-600 px-2.5 py-1.5 text-xs font-medium text-white transition-colors duration-150 hover:bg-indigo-700 disabled:opacity-60"
+              className="flex items-center gap-1 rounded-md bg-brass-600 px-2.5 py-1.5 text-xs font-medium text-white transition-colors duration-150 hover:bg-brass-700 disabled:opacity-60"
             >
               <Send className="h-3.5 w-3.5" />
               Post
@@ -109,25 +116,25 @@ function BugDetailsPanel({ bug, canParticipate }: { bug: Bug; canParticipate: bo
       </div>
 
       <div>
-        <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Attachments</h3>
+        <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-500">Attachments</h3>
         <ul className="mb-3 space-y-1.5">
           {attachments.data?.map((a) => (
-            <li key={a.id} className="flex items-center justify-between rounded-md bg-slate-50 px-3 py-1.5 text-sm">
+            <li key={a.id} className="flex items-center justify-between rounded-md bg-parchment px-3 py-1.5 text-sm">
               <button
                 onClick={() => void downloadAttachment(a.id, a.filename)}
-                className="flex items-center gap-1.5 truncate text-left text-indigo-600 hover:text-indigo-700 hover:underline"
+                className="flex items-center gap-1.5 truncate text-left text-brass-600 hover:text-brass-700 hover:underline"
                 title={a.filename}
               >
                 <Paperclip className="h-3.5 w-3.5 shrink-0" />
                 <span className="truncate">{a.filename}</span>
               </button>
-              <span className="ml-2 flex items-center gap-2 shrink-0 text-xs text-slate-400">
+              <span className="ml-2 flex items-center gap-2 shrink-0 text-xs text-ink-400">
                 {formatBytes(a.size)}
                 <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
                   <button
                     onClick={() => deleteAttachment.mutate(a.id)}
                     aria-label={`Delete ${a.filename}`}
-                    className="text-slate-400 transition-colors duration-150 hover:text-red-600"
+                    className="text-ink-400 transition-colors duration-150 hover:text-red-600"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -135,7 +142,7 @@ function BugDetailsPanel({ bug, canParticipate }: { bug: Bug; canParticipate: bo
               </span>
             </li>
           ))}
-          {attachments.data?.length === 0 && <p className="text-sm text-slate-500">No attachments yet.</p>}
+          {attachments.data?.length === 0 && <p className="text-sm text-ink-500">No attachments yet.</p>}
         </ul>
         {canParticipate && (
           <>
@@ -153,7 +160,7 @@ function BugDetailsPanel({ bug, canParticipate }: { bug: Bug; canParticipate: bo
             />
             <label
               htmlFor={`attachment-input-${bug.id}`}
-              className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-50"
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-line px-2.5 py-1.5 text-xs font-medium text-ink-600 transition-colors duration-150 hover:bg-parchment"
             >
               <Paperclip className="h-3.5 w-3.5" />
               {uploadAttachment.isPending ? "Uploading..." : "Attach a file"}
@@ -179,11 +186,11 @@ function BugRow({ bug, projectId, myDeveloperId }: { bug: Bug; projectId: string
 
   return (
     <>
-      <tr className="border-t border-slate-100">
+      <tr className={`border-t border-line border-l-[3px] ${SEVERITY_STRIPE[bug.severity]}`}>
         <td className="px-3 py-2">
           <button
             onClick={() => setIsExpanded((v) => !v)}
-            className="flex items-center gap-1.5 text-left font-medium text-slate-900 hover:text-indigo-600"
+            className="flex items-center gap-1.5 text-left font-medium text-ink hover:text-brass-600"
           >
             {isExpanded ? <ChevronDown className="h-3.5 w-3.5 shrink-0" /> : <ChevronRight className="h-3.5 w-3.5 shrink-0" />}
             {bug.title}
@@ -197,7 +204,7 @@ function BugRow({ bug, projectId, myDeveloperId }: { bug: Bug; projectId: string
             <select
               value={bug.status}
               onChange={(e) => updateBug.mutate({ id: bug.id, data: { status: e.target.value } })}
-              className="rounded-md border border-slate-300 px-2 py-1 text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="rounded-md border border-line px-2 py-1 text-xs focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
             >
               {["OPEN", "IN_PROGRESS", "RESOLVED", "WONT_FIX"].map((s) => (
                 <option key={s} value={s}>
@@ -222,7 +229,7 @@ function BugRow({ bug, projectId, myDeveloperId }: { bug: Bug; projectId: string
         </td>
       </tr>
       {isExpanded && (
-        <tr className="border-t border-slate-100 bg-white">
+        <tr className="border-t border-line bg-surface">
           <td colSpan={4} className="p-0">
             <BugDetailsPanel bug={bug} canParticipate={canParticipate} />
           </td>
@@ -276,10 +283,10 @@ export function ProjectDetailPage() {
     <div className="space-y-6">
       <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">{p.name}</h1>
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-500">
+          <h1 className="text-2xl font-bold text-ink">{p.name}</h1>
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-ink-500">
             <span>{p.client?.name}</span>
-            <span className="text-slate-300">•</span>
+            <span className="text-ink-200">•</span>
             <ProjectStatusBadge status={p.status} />
             <PriorityBadge priority={p.priority} />
           </div>
@@ -287,20 +294,20 @@ export function ProjectDetailPage() {
         <button
           onClick={() => void downloadReport()}
           disabled={isDownloading}
-          className="flex items-center gap-1.5 rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-50 disabled:opacity-60"
+          className="flex items-center gap-1.5 rounded-md border border-line px-3 py-2 text-sm font-medium text-ink-600 transition-colors duration-150 hover:bg-parchment disabled:opacity-60"
         >
           <Download className="h-4 w-4" />
           {isDownloading ? "Preparing..." : "Download PDF report"}
         </button>
       </div>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="mb-3 text-sm font-semibold text-slate-700">Assigned developers</h2>
-        <ul className="mb-3 divide-y divide-slate-100">
+      <section className="rounded-lg border border-line bg-surface p-5 shadow-sm">
+        <h2 className="mb-3 text-sm font-semibold text-ink-600">Assigned developers</h2>
+        <ul className="mb-3 divide-y divide-line">
           {p.assignments?.map((a) => (
             <li key={a.id} className="flex items-center justify-between py-2 text-sm">
               <span>
-                {a.developer.user.name} <span className="text-slate-500">({a.roleOnProject ?? "contributor"})</span>
+                {a.developer.user.name} <span className="text-ink-500">({a.roleOnProject ?? "contributor"})</span>
               </span>
               <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
                 <button
@@ -313,7 +320,7 @@ export function ProjectDetailPage() {
               </RoleGuard>
             </li>
           ))}
-          {p.assignments?.length === 0 && <p className="py-1 text-sm text-slate-500">No developers assigned.</p>}
+          {p.assignments?.length === 0 && <p className="py-1 text-sm text-ink-500">No developers assigned.</p>}
         </ul>
         <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
           <select
@@ -322,7 +329,7 @@ export function ProjectDetailPage() {
               if (e.target.value) assignDeveloper.mutate({ developerId: e.target.value });
               e.target.value = "";
             }}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
           >
             <option value="">Assign a developer...</option>
             {developers.data?.items
@@ -336,19 +343,19 @@ export function ProjectDetailPage() {
         </RoleGuard>
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="mb-3 text-sm font-semibold text-slate-700">Required skills</h2>
+      <section className="rounded-lg border border-line bg-surface p-5 shadow-sm">
+        <h2 className="mb-3 text-sm font-semibold text-ink-600">Required skills</h2>
         <div className="mb-3 flex flex-wrap gap-2">
           {p.requiredSkills?.map((rs) => (
             <span
               key={rs.id}
-              className="flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700"
+              className="flex items-center gap-1.5 rounded-full bg-brass-50 px-3 py-1 text-xs font-medium text-brass-700"
             >
               {rs.skill.name}
               <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
                 <button
                   onClick={() => removeSkill.mutate(rs.skillId)}
-                  className="text-indigo-400 transition-colors duration-150 hover:text-indigo-700"
+                  className="text-brass-400 transition-colors duration-150 hover:text-brass-700"
                   aria-label={`Remove ${rs.skill.name}`}
                 >
                   <X className="h-3 w-3" />
@@ -364,7 +371,7 @@ export function ProjectDetailPage() {
               if (e.target.value) addSkill.mutate(e.target.value);
               e.target.value = "";
             }}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
           >
             <option value="">Add a required skill...</option>
             {skills.data
@@ -378,9 +385,9 @@ export function ProjectDetailPage() {
         </RoleGuard>
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-lg border border-line bg-surface p-5 shadow-sm">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-slate-700">Bugs</h2>
+          <h2 className="text-sm font-semibold text-ink-600">Bugs</h2>
         </div>
         <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
           <div className="mb-3 flex flex-col gap-2 sm:flex-row">
@@ -388,12 +395,12 @@ export function ProjectDetailPage() {
               placeholder="New bug title"
               value={newBugTitle}
               onChange={(e) => setNewBugTitle(e.target.value)}
-              className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:flex-1"
+              className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500 sm:flex-1"
             />
             <select
               value={newBugSeverity}
               onChange={(e) => setNewBugSeverity(e.target.value as Severity)}
-              className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
             >
               {["LOW", "MEDIUM", "HIGH", "CRITICAL"].map((s) => (
                 <option key={s} value={s}>
@@ -407,7 +414,7 @@ export function ProjectDetailPage() {
                 createBug.mutate({ title: newBugTitle, severity: newBugSeverity });
                 setNewBugTitle("");
               }}
-              className="flex items-center justify-center gap-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition-all duration-150 hover:scale-[1.02] hover:bg-indigo-700 active:scale-[0.98]"
+              className="flex items-center justify-center gap-1.5 rounded-md bg-brass-600 px-3 py-2 text-sm font-medium text-white transition-all duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98]"
             >
               <Plus className="h-4 w-4" />
               Add bug
@@ -419,7 +426,7 @@ export function ProjectDetailPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="text-slate-500">
+              <thead className="text-ink-500">
                 <tr>
                   <th className="px-3 py-1">Title</th>
                   <th className="px-3 py-1">Severity</th>

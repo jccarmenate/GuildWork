@@ -29,10 +29,10 @@ function TeamRosterView() {
 
   return (
     <div>
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-lg border border-line bg-surface shadow-sm">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
-          <thead className="bg-slate-50 text-slate-500">
+          <thead className="bg-parchment text-ink-500">
             <tr>
               <th className="px-4 py-2">Name</th>
               <th className="px-4 py-2">Seniority</th>
@@ -47,19 +47,19 @@ function TeamRosterView() {
             {developers.data?.items.map((d) => {
               const w = workloadByDevId.get(d.id);
               return (
-                <tr key={d.id} className="border-t border-slate-100 transition-colors duration-150 hover:bg-slate-50">
-                  <td className="px-4 py-2 font-medium text-slate-900">{d.user.name}</td>
-                  <td className="px-4 py-2 text-slate-600">{d.seniority}</td>
-                  <td className="px-4 py-2 text-slate-600">{d.skills.map((s) => s.skill.name).join(", ") || "-"}</td>
-                  <td className="px-4 py-2 text-slate-600">{d.mentor?.user.name ?? "-"}</td>
-                  <td className="px-4 py-2 text-slate-600">{w?.activeAssignments ?? "-"}</td>
-                  <td className="px-4 py-2 text-slate-600">{w?.openBugs ?? "-"}</td>
+                <tr key={d.id} className="border-t border-line transition-colors duration-150 hover:bg-parchment">
+                  <td className="px-4 py-2 font-medium text-ink">{d.user.name}</td>
+                  <td className="px-4 py-2 text-ink-500">{d.seniority}</td>
+                  <td className="px-4 py-2 text-ink-500">{d.skills.map((s) => s.skill.name).join(", ") || "-"}</td>
+                  <td className="px-4 py-2 text-ink-500">{d.mentor?.user.name ?? "-"}</td>
+                  <td className="px-4 py-2 text-ink-500">{w?.activeAssignments ?? "-"}</td>
+                  <td className="px-4 py-2 text-ink-500">{w?.openBugs ?? "-"}</td>
                   {user?.role === "ADMIN" && (
                     <td className="px-4 py-2">
                       <select
                         defaultValue="DEVELOPER"
                         onChange={(e) => void changeRole(d.userId, e.target.value as UserRole)}
-                        className="rounded-md border border-slate-300 px-2 py-1 text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        className="rounded-md border border-line px-2 py-1 text-xs focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
                       >
                         <option value="DEVELOPER">Developer</option>
                         <option value="PROJECT_MANAGER">Project Manager</option>
@@ -99,37 +99,37 @@ function MyProfileView() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="mb-2 text-sm font-semibold text-slate-700">
+      <section className="rounded-lg border border-line bg-surface p-5 shadow-sm">
+        <h2 className="mb-2 text-sm font-semibold text-ink-600">
           {profile.data.user.name} — {profile.data.seniority}
         </h2>
-        <p className="mb-2 text-sm text-slate-500">Mentor: {profile.data.mentor?.user.name ?? "None assigned"}</p>
+        <p className="mb-2 text-sm text-ink-500">Mentor: {profile.data.mentor?.user.name ?? "None assigned"}</p>
         <textarea
           value={bio}
           onChange={(e) => setBio(e.target.value)}
           placeholder="Tell the team about yourself..."
-          className="mb-2 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="mb-2 w-full rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
         />
         <button
           onClick={() => updateProfile.mutate({ bio })}
-          className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition-all duration-150 hover:scale-[1.02] hover:bg-indigo-700 active:scale-[0.98]"
+          className="rounded-md bg-brass-600 px-3 py-2 text-sm font-medium text-white transition-all duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98]"
         >
           Save bio
         </button>
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="mb-3 text-sm font-semibold text-slate-700">Your skills</h2>
+      <section className="rounded-lg border border-line bg-surface p-5 shadow-sm">
+        <h2 className="mb-3 text-sm font-semibold text-ink-600">Your skills</h2>
         <div className="mb-3 flex flex-wrap gap-2">
           {profile.data.skills.map((s) => (
             <span
               key={s.id}
-              className="flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700"
+              className="flex items-center gap-1.5 rounded-full bg-brass-50 px-3 py-1 text-xs font-medium text-brass-700"
             >
               {s.skill.name} ({s.proficiency})
               <button
                 onClick={() => removeSkill.mutate(s.skillId)}
-                className="text-indigo-400 transition-colors duration-150 hover:text-indigo-700"
+                className="text-brass-400 transition-colors duration-150 hover:text-brass-700"
                 aria-label={`Remove ${s.skill.name}`}
               >
                 <X className="h-3 w-3" />
@@ -143,7 +143,7 @@ function MyProfileView() {
             if (e.target.value) addSkill.mutate({ skillId: e.target.value });
             e.target.value = "";
           }}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
         >
           <option value="">Add a skill...</option>
           {skills.data
@@ -162,7 +162,7 @@ function MyProfileView() {
 export function TeamPage() {
   return (
     <div>
-      <h1 className="mb-4 text-2xl font-bold text-slate-900">Team</h1>
+      <h1 className="mb-4 text-2xl font-bold text-ink">Team</h1>
       <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
         <TeamRosterView />
       </RoleGuard>

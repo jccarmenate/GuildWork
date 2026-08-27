@@ -3,14 +3,27 @@ import type { BugStatus, Priority, ProjectStatus, Severity, UserRole } from "../
 
 type BadgeColor = "slate" | "blue" | "amber" | "orange" | "emerald" | "red" | "violet";
 
+// Reads like a classification stamp on a case file rather than a soft pill —
+// a small colored mark plus a mono, uppercase label, sitting on a hairline
+// border instead of a filled background.
 const COLOR_CLASSES: Record<BadgeColor, string> = {
-  slate: "bg-slate-100 text-slate-700",
-  blue: "bg-blue-100 text-blue-700",
-  amber: "bg-amber-100 text-amber-700",
-  orange: "bg-orange-100 text-orange-700",
-  emerald: "bg-emerald-100 text-emerald-700",
-  red: "bg-red-100 text-red-700",
-  violet: "bg-violet-100 text-violet-700"
+  slate: "border-ink-200 text-ink-500",
+  blue: "border-sky-200 text-sky-700",
+  amber: "border-amber-200 text-amber-700",
+  orange: "border-orange-200 text-orange-700",
+  emerald: "border-emerald-200 text-emerald-700",
+  red: "border-red-200 text-red-700",
+  violet: "border-violet-200 text-violet-700"
+};
+
+const DOT_CLASSES: Record<BadgeColor, string> = {
+  slate: "bg-ink-400",
+  blue: "bg-sky-500",
+  amber: "bg-amber-500",
+  orange: "bg-orange-500",
+  emerald: "bg-emerald-500",
+  red: "bg-red-500",
+  violet: "bg-violet-500"
 };
 
 interface BadgeProps {
@@ -22,8 +35,9 @@ interface BadgeProps {
 function Badge({ color, children, bold }: BadgeProps) {
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs ${bold ? "font-semibold" : "font-medium"} ${COLOR_CLASSES[color]}`}
+      className={`inline-flex items-center gap-1.5 rounded border bg-surface px-2 py-0.5 font-mono text-[11px] uppercase tracking-wide ${bold ? "font-semibold" : "font-medium"} ${COLOR_CLASSES[color]}`}
     >
+      <span className={`h-1.5 w-1.5 rounded-full ${DOT_CLASSES[color]}`} aria-hidden="true" />
       {children}
     </span>
   );

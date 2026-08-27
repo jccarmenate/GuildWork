@@ -14,6 +14,14 @@ import type { Priority, ProjectStatus } from "../api/types";
 const STATUSES: ProjectStatus[] = ["PLANNING", "ACTIVE", "ON_HOLD", "COMPLETED", "CANCELLED"];
 const PRIORITIES: Priority[] = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
 
+const STATUS_STRIPE: Record<ProjectStatus, string> = {
+  PLANNING: "border-l-ink-200",
+  ACTIVE: "border-l-sky-400",
+  ON_HOLD: "border-l-amber-400",
+  COMPLETED: "border-l-emerald-400",
+  CANCELLED: "border-l-red-400"
+};
+
 function NewProjectForm({ onDone }: { onDone: () => void }) {
   const clients = useClients({ pageSize: 100 });
   const createProject = useCreateProject();
@@ -38,18 +46,18 @@ function NewProjectForm({ onDone }: { onDone: () => void }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mb-6 space-y-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <form onSubmit={handleSubmit} className="mb-6 space-y-3 rounded-lg border border-line bg-surface p-5 shadow-sm">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <input
           placeholder="Project name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
         />
         <select
           value={clientId}
           onChange={(e) => setClientId(e.target.value)}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
         >
           <option value="">Select client...</option>
           {clients.data?.items.map((c) => (
@@ -62,7 +70,7 @@ function NewProjectForm({ onDone }: { onDone: () => void }) {
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
         />
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}
@@ -70,14 +78,14 @@ function NewProjectForm({ onDone }: { onDone: () => void }) {
         <button
           type="submit"
           disabled={createProject.isPending}
-          className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition-all duration-150 hover:scale-[1.02] hover:bg-indigo-700 active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100"
+          className="rounded-md bg-brass-600 px-3 py-2 text-sm font-medium text-white transition-all duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100"
         >
           Create project
         </button>
         <button
           type="button"
           onClick={onDone}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-50"
+          className="rounded-md border border-line px-3 py-2 text-sm font-medium text-ink-600 transition-colors duration-150 hover:bg-parchment"
         >
           Cancel
         </button>
@@ -102,11 +110,11 @@ export function ProjectsPage() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">Projects</h1>
+        <h1 className="text-2xl font-bold text-ink">Projects</h1>
         <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
           <button
             onClick={() => setShowForm((v) => !v)}
-            className="flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition-all duration-150 hover:scale-[1.02] hover:bg-indigo-700 active:scale-[0.98]"
+            className="flex items-center gap-1.5 rounded-md bg-brass-600 px-3 py-2 text-sm font-medium text-white transition-all duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98]"
           >
             <Plus className="h-4 w-4" />
             New Project
@@ -121,11 +129,11 @@ export function ProjectsPage() {
           <input
             placeholder="Search by name..."
             onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value || undefined }))}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
           />
           <select
             onChange={(e) => setFilters((f) => ({ ...f, status: (e.target.value || undefined) as ProjectStatus }))}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
           >
             <option value="">All statuses</option>
             {STATUSES.map((s) => (
@@ -136,7 +144,7 @@ export function ProjectsPage() {
           </select>
           <select
             onChange={(e) => setFilters((f) => ({ ...f, priority: (e.target.value || undefined) as Priority }))}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
           >
             <option value="">All priorities</option>
             {PRIORITIES.map((p) => (
@@ -148,7 +156,7 @@ export function ProjectsPage() {
           {clients.data && clients.data.items.length > 0 && (
             <select
               onChange={(e) => setFilters((f) => ({ ...f, clientId: e.target.value || undefined }))}
-              className="rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
             >
               <option value="">All clients</option>
               {clients.data.items.map((c) => (
@@ -177,10 +185,10 @@ export function ProjectsPage() {
         />
       ) : (
         <>
-          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-lg border border-line bg-surface shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 text-slate-500">
+                <thead className="bg-parchment text-ink-500">
                   <tr>
                     <th className="px-4 py-2">Name</th>
                     <th className="px-4 py-2">Client</th>
@@ -190,13 +198,16 @@ export function ProjectsPage() {
                 </thead>
                 <tbody>
                   {projects.data!.items.map((p) => (
-                    <tr key={p.id} className="border-t border-slate-100 transition-colors duration-150 hover:bg-slate-50">
+                    <tr
+                      key={p.id}
+                      className={`border-t border-line border-l-[3px] transition-colors duration-150 hover:bg-parchment ${STATUS_STRIPE[p.status]}`}
+                    >
                       <td className="px-4 py-2">
-                        <Link to={`/projects/${p.id}`} className="font-medium text-indigo-600 hover:text-indigo-700 hover:underline">
+                        <Link to={`/projects/${p.id}`} className="font-medium text-brass-600 hover:text-brass-700 hover:underline">
                           {p.name}
                         </Link>
                       </td>
-                      <td className="px-4 py-2 text-slate-600">{p.client?.name ?? "-"}</td>
+                      <td className="px-4 py-2 text-ink-500">{p.client?.name ?? "-"}</td>
                       <td className="px-4 py-2">
                         <ProjectStatusBadge status={p.status} />
                       </td>

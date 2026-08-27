@@ -84,7 +84,7 @@ export function ParticleNetworkBackground() {
           const b = particles[j];
           const dist = Math.hypot(a.x - b.x, a.y - b.y);
           if (dist < LINK_DISTANCE) {
-            ctx!.strokeStyle = `rgba(67, 56, 202, ${(1 - dist / LINK_DISTANCE) * 0.65})`;
+            ctx!.strokeStyle = `rgba(150, 102, 42, ${(1 - dist / LINK_DISTANCE) * 0.65})`;
             ctx!.lineWidth = 1.2;
             ctx!.beginPath();
             ctx!.moveTo(a.x, a.y);
@@ -97,7 +97,7 @@ export function ParticleNetworkBackground() {
       for (const p of particles) {
         ctx!.beginPath();
         ctx!.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
-        ctx!.fillStyle = "rgba(67, 56, 202, 0.85)";
+        ctx!.fillStyle = "rgba(150, 102, 42, 0.85)";
         ctx!.fill();
       }
     }

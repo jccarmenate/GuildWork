@@ -37,8 +37,8 @@ export function AuditLogPage() {
 
   return (
     <div>
-      <h1 className="mb-1 text-2xl font-bold text-slate-900">Audit log</h1>
-      <p className="mb-4 text-sm text-slate-500">Role changes and destructive actions across GuildWork, most recent first.</p>
+      <h1 className="mb-1 text-2xl font-bold text-ink">Audit log</h1>
+      <p className="mb-4 text-sm text-ink-500">Role changes and destructive actions across GuildWork, most recent first.</p>
 
       {auditLog.isLoading ? (
         <Spinner label="Loading audit log..." />
@@ -46,10 +46,10 @@ export function AuditLogPage() {
         <EmptyState icon={History} title="No audited activity yet" />
       ) : (
         <>
-          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-lg border border-line bg-surface shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 text-slate-500">
+                <thead className="bg-parchment text-ink-500">
                   <tr>
                     <th className="px-4 py-2">When</th>
                     <th className="px-4 py-2">Actor</th>
@@ -59,15 +59,15 @@ export function AuditLogPage() {
                 </thead>
                 <tbody>
                   {auditLog.data!.items.map((entry) => (
-                    <tr key={entry.id} className="border-t border-slate-100">
-                      <td className="whitespace-nowrap px-4 py-2 text-slate-500">
+                    <tr key={entry.id} className="border-t border-line">
+                      <td className="whitespace-nowrap px-4 py-2 text-ink-500">
                         {new Date(entry.createdAt).toLocaleString()}
                       </td>
-                      <td className="px-4 py-2 text-slate-700">{entry.actor.name}</td>
-                      <td className="px-4 py-2 font-medium text-slate-900">
+                      <td className="px-4 py-2 text-ink-600">{entry.actor.name}</td>
+                      <td className="px-4 py-2 font-medium text-ink">
                         {ACTION_LABELS[entry.action] ?? entry.action}
                       </td>
-                      <td className="px-4 py-2 text-slate-600">{describe(entry)}</td>
+                      <td className="px-4 py-2 text-ink-500">{describe(entry)}</td>
                     </tr>
                   ))}
                 </tbody>

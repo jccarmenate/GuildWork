@@ -10,7 +10,7 @@ import { EmptyState } from "../components/EmptyState";
 import { Spinner } from "../components/Spinner";
 import { BugStatusBadge, ProjectStatusBadge, SeverityBadge } from "../components/Badges";
 
-const CHART_COLOR = "#4f46e5";
+const CHART_COLOR = "#96662A";
 
 function ManagerDashboard() {
   const bugSeverity = useBugSeverityAnalytics();
@@ -29,17 +29,17 @@ function ManagerDashboard() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatTile label="Total bugs tracked" value={totalBugs} icon={BugIcon} tint="amber" />
         <StatTile label="Avg. completion rate" value={`${Math.round(overallCompletion * 100)}%`} icon={Gauge} tint="emerald" />
-        <StatTile label="Top performers tracked" value={topPerformers.data?.length ?? 0} icon={Award} tint="indigo" />
+        <StatTile label="Top performers tracked" value={topPerformers.data?.length ?? 0} icon={Award} tint="brass" />
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="mb-4 text-sm font-semibold text-slate-700">Bugs by severity</h2>
+      <div className="rounded-lg border border-line bg-surface p-5 shadow-sm">
+        <h2 className="mb-4 text-sm font-semibold text-ink-600">Bugs by severity</h2>
         {bugSeverity.isLoading ? (
           <Spinner />
         ) : (
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={bugSeverity.data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E1D9C6" />
               <XAxis dataKey="severity" />
               <YAxis allowDecimals={false} />
               <Tooltip />
@@ -49,8 +49,8 @@ function ManagerDashboard() {
         )}
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="mb-4 text-sm font-semibold text-slate-700">Top performers</h2>
+      <div className="rounded-lg border border-line bg-surface p-5 shadow-sm">
+        <h2 className="mb-4 text-sm font-semibold text-ink-600">Top performers</h2>
         {topPerformers.isLoading ? (
           <Spinner />
         ) : (topPerformers.data?.length ?? 0) === 0 ? (
@@ -59,7 +59,7 @@ function ManagerDashboard() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="text-slate-500">
+                <tr className="text-ink-500">
                   <th className="py-1">Developer</th>
                   <th className="py-1">High/critical bugs resolved</th>
                   <th className="py-1">Avg. resolution (hrs)</th>
@@ -67,7 +67,7 @@ function ManagerDashboard() {
               </thead>
               <tbody>
                 {topPerformers.data!.map((row) => (
-                  <tr key={row.developerId} className="border-t border-slate-100">
+                  <tr key={row.developerId} className="border-t border-line">
                     <td className="py-1.5">{row.name}</td>
                     <td className="py-1.5">{row.resolvedHighSeverityCount}</td>
                     <td className="py-1.5">{row.avgResolutionHours ? row.avgResolutionHours.toFixed(1) : "n/a"}</td>
@@ -92,22 +92,22 @@ function DeveloperDashboard() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <StatTile label="Assigned projects" value={projects.data?.items.length ?? 0} icon={FolderKanban} tint="indigo" />
+        <StatTile label="Assigned projects" value={projects.data?.items.length ?? 0} icon={FolderKanban} tint="brass" />
         <StatTile label="Open bugs" value={openBugs.length} icon={BugIcon} tint="amber" />
         <StatTile label="Skills logged" value={profile.data?.skills.length ?? 0} icon={Sparkles} tint="violet" />
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="mb-3 text-sm font-semibold text-slate-700">Your assigned projects</h2>
+      <div className="rounded-lg border border-line bg-surface p-5 shadow-sm">
+        <h2 className="mb-3 text-sm font-semibold text-ink-600">Your assigned projects</h2>
         {projects.isLoading ? (
           <Spinner />
         ) : projects.data?.items.length === 0 ? (
           <EmptyState icon={FolderKanban} title="You are not assigned to any projects yet" />
         ) : (
-          <ul className="divide-y divide-slate-100">
+          <ul className="divide-y divide-line">
             {projects.data!.items.map((p) => (
               <li key={p.id} className="flex items-center justify-between py-2.5 text-sm">
-                <span className="font-medium text-slate-900">{p.name}</span>
+                <span className="font-medium text-ink">{p.name}</span>
                 <ProjectStatusBadge status={p.status} />
               </li>
             ))}
@@ -115,15 +115,15 @@ function DeveloperDashboard() {
         )}
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="mb-3 text-sm font-semibold text-slate-700">Your open bugs</h2>
+      <div className="rounded-lg border border-line bg-surface p-5 shadow-sm">
+        <h2 className="mb-3 text-sm font-semibold text-ink-600">Your open bugs</h2>
         {openBugs.length === 0 ? (
           <EmptyState icon={BugIcon} title="No open bugs assigned to you" />
         ) : (
-          <ul className="divide-y divide-slate-100">
+          <ul className="divide-y divide-line">
             {openBugs.map((b) => (
               <li key={b.id} className="flex items-center justify-between py-2.5 text-sm">
-                <span className="font-medium text-slate-900">{b.title}</span>
+                <span className="font-medium text-ink">{b.title}</span>
                 <span className="flex items-center gap-2">
                   <SeverityBadge severity={b.severity} />
                   <BugStatusBadge status={b.status} />
@@ -134,10 +134,10 @@ function DeveloperDashboard() {
         )}
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="mb-3 text-sm font-semibold text-slate-700">Your mentor</h2>
+      <div className="rounded-lg border border-line bg-surface p-5 shadow-sm">
+        <h2 className="mb-3 text-sm font-semibold text-ink-600">Your mentor</h2>
         {profile.data?.mentor ? (
-          <p className="text-sm text-slate-700">{profile.data.mentor.user.name}</p>
+          <p className="text-sm text-ink-600">{profile.data.mentor.user.name}</p>
         ) : (
           <EmptyState icon={GraduationCap} title="No mentor assigned yet" />
         )}
@@ -152,7 +152,7 @@ export function DashboardPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-slate-900">Dashboard</h1>
+      <h1 className="mb-6 text-2xl font-bold text-ink">Dashboard</h1>
       {isManager ? <ManagerDashboard /> : <DeveloperDashboard />}
     </div>
   );

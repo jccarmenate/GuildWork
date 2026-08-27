@@ -14,7 +14,7 @@ export function ProtectedRoute({ children, allow }: ProtectedRouteProps) {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+      <div className="flex min-h-screen items-center justify-center bg-parchment">
         <Spinner />
       </div>
     );
