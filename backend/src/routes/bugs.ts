@@ -7,6 +7,7 @@ import { prisma } from "../lib/prisma.js";
 import { requireAuth, requireRole } from "../auth/middleware.js";
 import { parsePagination, toPage } from "../lib/pagination.js";
 import { recordAuditLog } from "../lib/auditLog.js";
+import { notifyBugAssigned, notifyBugResolved } from "../lib/notifications.js";
 
 const router = Router();
 
@@ -116,10 +117,23 @@ router.patch("/:id", async (req, res) => {
       return;
     }
     const data: Record<string, unknown> = { ...parsed.data };
-    if (parsed.data.status === BugStatus.RESOLVED && bug.status !== BugStatus.RESOLVED) {
+    const isNewlyResolved = parsed.data.status === BugStatus.RESOLVED && bug.status !== BugStatus.RESOLVED;
+    if (isNewlyResolved) {
       data.resolvedAt = new Date();
     }
     const updated = await prisma.bug.update({ where: { id: req.params.id }, data });
+
+    if (parsed.data.assignedToDeveloperId && parsed.data.assignedToDeveloperId !== bug.assignedToDeveloperId) {
+      await notifyBugAssigned({
+        developerId: parsed.data.assignedToDeveloperId,
+        bugTitle: updated.title,
+        bugSeverity: updated.severity
+      });
+    }
+    if (isNewlyResolved) {
+      await notifyBugResolved({ reporterUserId: bug.reportedByUserId, bugTitle: updated.title });
+    }
+
     res.json(updated);
     return;
   }
@@ -143,10 +157,16 @@ router.patch("/:id", async (req, res) => {
   }
 
   const data: Record<string, unknown> = { ...parsed.data };
-  if (parsed.data.status === BugStatus.RESOLVED && bug.status !== BugStatus.RESOLVED) {
+  const isNewlyResolved = parsed.data.status === BugStatus.RESOLVED && bug.status !== BugStatus.RESOLVED;
+  if (isNewlyResolved) {
     data.resolvedAt = new Date();
   }
   const updated = await prisma.bug.update({ where: { id: req.params.id }, data });
+
+  if (isNewlyResolved) {
+    await notifyBugResolved({ reporterUserId: bug.reportedByUserId, bugTitle: updated.title });
+  }
+
   res.json(updated);
 });
 

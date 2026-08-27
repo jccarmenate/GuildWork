@@ -7,6 +7,7 @@ import { generateProjectReportPdf } from "../pdf/projectReport.js";
 import { reportRateLimit } from "../middleware/rateLimit.js";
 import { parsePagination, toPage } from "../lib/pagination.js";
 import { recordAuditLog } from "../lib/auditLog.js";
+import { notifyBugAssigned } from "../lib/notifications.js";
 
 const router = Router();
 
@@ -243,6 +244,15 @@ router.post("/:id/bugs", requireRole(...managerRoles), async (req, res) => {
   const bug = await prisma.bug.create({
     data: { projectId: req.params.id, reportedByUserId: req.user!.id, ...parsed.data }
   });
+
+  if (bug.assignedToDeveloperId) {
+    await notifyBugAssigned({
+      developerId: bug.assignedToDeveloperId,
+      bugTitle: bug.title,
+      bugSeverity: bug.severity
+    });
+  }
+
   res.status(201).json(bug);
 });
 
