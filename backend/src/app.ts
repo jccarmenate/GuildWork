@@ -3,7 +3,9 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
+import swaggerUi from "swagger-ui-express";
 import { pinoHttp } from "pino-http";
+import { openApiSpec } from "./openapi.js";
 import authRoutes from "./routes/auth.js";
 import clientRoutes from "./routes/clients.js";
 import projectRoutes from "./routes/projects.js";
@@ -49,6 +51,22 @@ export function createApp() {
   app.use("/api/skills", skillRoutes);
   app.use("/api/analytics", analyticsRoutes);
   app.use("/api/audit-log", auditLogRoutes);
+
+  app.get("/api/openapi.json", (_req, res) => {
+    res.json(openApiSpec);
+  });
+  // Swagger UI's bundled init script is inline, which the app-wide CSP
+  // (already set by the helmet() above) blocks — dropped only for this
+  // documentation route, nowhere else.
+  app.use(
+    "/api/docs",
+    (_req: express.Request, res: express.Response, next: express.NextFunction) => {
+      res.removeHeader("Content-Security-Policy");
+      next();
+    },
+    swaggerUi.serve,
+    swaggerUi.setup(openApiSpec)
+  );
 
   app.use((_req, res) => {
     res.status(404).json({ error: "Not found" });
