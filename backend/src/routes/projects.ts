@@ -4,6 +4,7 @@ import { Priority, ProjectStatus, Severity, UserRole } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 import { requireAuth, requireRole } from "../auth/middleware.js";
 import { generateProjectReportPdf } from "../pdf/projectReport.js";
+import { reportRateLimit } from "../middleware/rateLimit.js";
 
 const router = Router();
 
@@ -213,7 +214,7 @@ router.post("/:id/bugs", requireRole(...managerRoles), async (req, res) => {
   res.status(201).json(bug);
 });
 
-router.get("/:id/report.pdf", async (req, res) => {
+router.get("/:id/report.pdf", reportRateLimit, async (req, res) => {
   const project = await prisma.project.findUnique({
     where: { id: req.params.id },
     include: detailInclude
