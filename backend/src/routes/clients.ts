@@ -4,6 +4,7 @@ import { UserRole } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 import { requireAuth, requireRole } from "../auth/middleware.js";
 import { parsePagination, toPage } from "../lib/pagination.js";
+import { recordAuditLog } from "../lib/auditLog.js";
 
 const router = Router();
 
@@ -74,6 +75,13 @@ router.delete("/:id", async (req, res) => {
     return;
   }
   await prisma.client.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+  await recordAuditLog({
+    actorUserId: req.user!.id,
+    action: "CLIENT_DELETED",
+    entityType: "Client",
+    entityId: req.params.id,
+    metadata: { name: existing.name }
+  });
   res.status(204).send();
 });
 
@@ -84,6 +92,13 @@ router.post("/:id/restore", async (req, res) => {
     return;
   }
   const client = await prisma.client.update({ where: { id: req.params.id }, data: { deletedAt: null } });
+  await recordAuditLog({
+    actorUserId: req.user!.id,
+    action: "CLIENT_RESTORED",
+    entityType: "Client",
+    entityId: req.params.id,
+    metadata: { name: existing.name }
+  });
   res.json(client);
 });
 

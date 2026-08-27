@@ -11,6 +11,7 @@ import bugRoutes from "./routes/bugs.js";
 import developerRoutes from "./routes/developers.js";
 import skillRoutes from "./routes/skills.js";
 import analyticsRoutes from "./routes/analytics.js";
+import auditLogRoutes from "./routes/auditLog.js";
 import { logger } from "./lib/logger.js";
 import { errorHandler } from "./middleware/errors.js";
 import { globalRateLimit } from "./middleware/rateLimit.js";
@@ -47,6 +48,7 @@ export function createApp() {
   app.use("/api/developers", developerRoutes);
   app.use("/api/skills", skillRoutes);
   app.use("/api/analytics", analyticsRoutes);
+  app.use("/api/audit-log", auditLogRoutes);
 
   app.use((_req, res) => {
     res.status(404).json({ error: "Not found" });

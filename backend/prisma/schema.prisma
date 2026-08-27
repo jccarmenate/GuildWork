@@ -68,6 +68,7 @@ model User {
   developerProfile DeveloperProfile?
   projectsCreated Project[]         @relation("ProjectCreatedBy")
   bugsReported    Bug[]             @relation("BugReportedBy")
+  auditLogs       AuditLog[]
 }
 
 model RefreshToken {
@@ -168,6 +169,20 @@ model ProjectAssignment {
   assignedAt      DateTime         @default(now())
 
   @@unique([projectId, developerId])
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  actorUserId String
+  actor       User     @relation(fields: [actorUserId], references: [id])
+  action      String
+  entityType  String
+  entityId    String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
 }
 
 model Bug {

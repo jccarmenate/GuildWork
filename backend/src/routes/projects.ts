@@ -6,6 +6,7 @@ import { requireAuth, requireRole } from "../auth/middleware.js";
 import { generateProjectReportPdf } from "../pdf/projectReport.js";
 import { reportRateLimit } from "../middleware/rateLimit.js";
 import { parsePagination, toPage } from "../lib/pagination.js";
+import { recordAuditLog } from "../lib/auditLog.js";
 
 const router = Router();
 
@@ -143,6 +144,13 @@ router.delete("/:id", requireRole(...managerRoles), async (req, res) => {
     return;
   }
   await prisma.project.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+  await recordAuditLog({
+    actorUserId: req.user!.id,
+    action: "PROJECT_DELETED",
+    entityType: "Project",
+    entityId: req.params.id,
+    metadata: { name: existing.name }
+  });
   res.status(204).send();
 });
 
@@ -153,6 +161,13 @@ router.post("/:id/restore", requireRole(...managerRoles), async (req, res) => {
     return;
   }
   const project = await prisma.project.update({ where: { id: req.params.id }, data: { deletedAt: null } });
+  await recordAuditLog({
+    actorUserId: req.user!.id,
+    action: "PROJECT_RESTORED",
+    entityType: "Project",
+    entityId: req.params.id,
+    metadata: { name: existing.name }
+  });
   res.json(project);
 });
 

@@ -8,6 +8,7 @@ import { hashRefreshToken, refreshTokenExpiry, signAccessToken, generateRefreshT
 import { issueTokenPair } from "../auth/issueTokens.js";
 import { clearRefreshCookie, setRefreshCookie, REFRESH_COOKIE_NAME } from "../auth/cookies.js";
 import { requireAuth, requireRole } from "../auth/middleware.js";
+import { recordAuditLog } from "../lib/auditLog.js";
 
 const router = Router();
 
@@ -228,6 +229,14 @@ router.patch("/admin/users/:id/role", requireAuth, requireRole(UserRole.ADMIN), 
   const updated = await prisma.user.update({
     where: { id: req.params.id },
     data: { role: parsed.data.role }
+  });
+
+  await recordAuditLog({
+    actorUserId: req.user!.id,
+    action: "USER_ROLE_CHANGED",
+    entityType: "User",
+    entityId: updated.id,
+    metadata: { from: user.role, to: parsed.data.role }
   });
 
   if (parsed.data.role === UserRole.DEVELOPER) {

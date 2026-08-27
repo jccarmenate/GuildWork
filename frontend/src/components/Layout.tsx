@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BarChart3, Boxes, Building2, FolderKanban, LayoutDashboard, LogOut, Menu, Users, X } from "lucide-react";
+import { BarChart3, Boxes, Building2, FolderKanban, History, LayoutDashboard, LogOut, Menu, Users, X } from "lucide-react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { RoleGuard } from "./RoleGuard";
@@ -91,6 +91,12 @@ export function Layout() {
             <NavLink to="/analytics" className={navLinkClass}>
               <BarChart3 className="h-4 w-4" />
               Analytics
+            </NavLink>
+          </RoleGuard>
+          <RoleGuard allow={["ADMIN"]}>
+            <NavLink to="/audit-log" className={navLinkClass}>
+              <History className="h-4 w-4" />
+              Audit log
             </NavLink>
           </RoleGuard>
         </nav>

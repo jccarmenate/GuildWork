@@ -4,6 +4,7 @@ import { BugStatus, Severity, UserRole } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 import { requireAuth, requireRole } from "../auth/middleware.js";
 import { parsePagination, toPage } from "../lib/pagination.js";
+import { recordAuditLog } from "../lib/auditLog.js";
 
 const router = Router();
 
@@ -113,6 +114,13 @@ router.delete("/:id", requireRole(...managerRoles), async (req, res) => {
     return;
   }
   await prisma.bug.delete({ where: { id: req.params.id } });
+  await recordAuditLog({
+    actorUserId: req.user!.id,
+    action: "BUG_DELETED",
+    entityType: "Bug",
+    entityId: req.params.id,
+    metadata: { title: bug.title, projectId: bug.projectId }
+  });
   res.status(204).send();
 });
 

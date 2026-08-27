@@ -9,6 +9,7 @@ import { ProjectDetailPage } from "./pages/ProjectDetailPage";
 import { ClientsPage } from "./pages/ClientsPage";
 import { TeamPage } from "./pages/TeamPage";
 import { AnalyticsPage } from "./pages/AnalyticsPage";
+import { AuditLogPage } from "./pages/AuditLogPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 
 export function App() {
@@ -40,6 +41,14 @@ export function App() {
           element={
             <ProtectedRoute allow={["ADMIN", "PROJECT_MANAGER"]}>
               <AnalyticsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/audit-log"
+          element={
+            <ProtectedRoute allow={["ADMIN"]}>
+              <AuditLogPage />
             </ProtectedRoute>
           }
         />
