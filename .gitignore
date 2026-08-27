@@ -10,6 +10,7 @@ npm-debug.log*
 Thumbs.db
 .vscode/
 .idea/
+.claude/
 backend/generated/
 frontend/dist/
 backend/dist/
