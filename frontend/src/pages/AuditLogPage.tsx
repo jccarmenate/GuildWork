@@ -58,8 +58,12 @@ export function AuditLogPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {auditLog.data!.items.map((entry) => (
-                    <tr key={entry.id} className="border-t border-line">
+                  {auditLog.data!.items.map((entry, i) => (
+                    <tr
+                      key={entry.id}
+                      style={{ animationDelay: `${Math.min(i, 10) * 30}ms` }}
+                      className="animate-fade-in-up border-t border-line"
+                    >
                       <td className="whitespace-nowrap px-4 py-2 text-ink-500">
                         {new Date(entry.createdAt).toLocaleString()}
                       </td>

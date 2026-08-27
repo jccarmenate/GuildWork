@@ -24,7 +24,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     if (this.state.hasError) {
       return (
         <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-parchment px-4 text-center">
-          <AlertTriangle className="h-10 w-10 text-amber-500" />
+          <AlertTriangle className="h-10 w-10 animate-fade-in text-amber-500" />
           <div>
             <h1 className="font-display text-lg font-semibold text-ink">Something went wrong</h1>
             <p className="mt-1 text-sm text-ink-500">
@@ -33,7 +33,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           </div>
           <button
             onClick={() => window.location.reload()}
-            className="rounded-md bg-brass-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-150 hover:bg-brass-700"
+            className="rounded-md bg-brass-600 px-4 py-2 text-sm font-medium text-white transition-all duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98]"
           >
             Reload
           </button>

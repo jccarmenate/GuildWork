@@ -43,12 +43,16 @@ interface BadgeProps {
   color: BadgeColor;
   children: ReactNode;
   bold?: boolean;
+  /** Plays the ink-stamp entrance once on mount. Reserved for a badge that
+   * stands alone (a page header, a profile card) — a whole table of them
+   * stamping in at once reads as noise, not craft. */
+  stamp?: boolean;
 }
 
-function Badge({ color, children, bold }: BadgeProps) {
+function Badge({ color, children, bold, stamp }: BadgeProps) {
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded border bg-surface px-2 py-0.5 font-mono text-[11px] uppercase tracking-wide ${bold ? "font-semibold" : "font-medium"} ${COLOR_CLASSES[color]}`}
+      className={`inline-flex items-center gap-1.5 rounded border bg-surface px-2 py-0.5 font-mono text-[11px] uppercase tracking-wide ${bold ? "font-semibold" : "font-medium"} ${stamp ? "animate-stamp-in" : ""} ${COLOR_CLASSES[color]}`}
     >
       <span className={`h-1.5 w-1.5 rounded-full ${DOT_CLASSES[color]}`} aria-hidden="true" />
       {children}
@@ -72,8 +76,12 @@ const PROJECT_STATUS_COLORS: Record<ProjectStatus, BadgeColor> = {
   CANCELLED: "red"
 };
 
-export function ProjectStatusBadge({ status }: { status: ProjectStatus }) {
-  return <Badge color={PROJECT_STATUS_COLORS[status]}>{PROJECT_STATUS_LABELS[status] ?? status}</Badge>;
+export function ProjectStatusBadge({ status, stamp }: { status: ProjectStatus; stamp?: boolean }) {
+  return (
+    <Badge color={PROJECT_STATUS_COLORS[status]} stamp={stamp}>
+      {PROJECT_STATUS_LABELS[status] ?? status}
+    </Badge>
+  );
 }
 
 const LEVEL_LABELS: Record<Priority | Severity, string> = {
@@ -90,17 +98,17 @@ const LEVEL_COLORS: Record<Priority | Severity, BadgeColor> = {
   CRITICAL: "red"
 };
 
-export function PriorityBadge({ priority }: { priority: Priority }) {
+export function PriorityBadge({ priority, stamp }: { priority: Priority; stamp?: boolean }) {
   return (
-    <Badge color={LEVEL_COLORS[priority]} bold={priority === "CRITICAL"}>
+    <Badge color={LEVEL_COLORS[priority]} bold={priority === "CRITICAL"} stamp={stamp}>
       {LEVEL_LABELS[priority] ?? priority}
     </Badge>
   );
 }
 
-export function SeverityBadge({ severity }: { severity: Severity }) {
+export function SeverityBadge({ severity, stamp }: { severity: Severity; stamp?: boolean }) {
   return (
-    <Badge color={LEVEL_COLORS[severity]} bold={severity === "CRITICAL"}>
+    <Badge color={LEVEL_COLORS[severity]} bold={severity === "CRITICAL"} stamp={stamp}>
       {LEVEL_LABELS[severity] ?? severity}
     </Badge>
   );
@@ -137,5 +145,9 @@ const ROLE_COLORS: Record<UserRole, BadgeColor> = {
 };
 
 export function RoleBadge({ role }: { role: UserRole }) {
-  return <Badge color={ROLE_COLORS[role]}>{ROLE_LABELS[role] ?? role}</Badge>;
+  return (
+    <Badge color={ROLE_COLORS[role]} stamp>
+      {ROLE_LABELS[role] ?? role}
+    </Badge>
+  );
 }

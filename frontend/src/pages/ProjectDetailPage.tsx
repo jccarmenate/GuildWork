@@ -106,7 +106,7 @@ function BugDetailsPanel({ bug, canParticipate }: { bug: Bug; canParticipate: bo
                 addComment.mutate(commentBody, { onSuccess: () => setCommentBody("") });
               }}
               disabled={addComment.isPending}
-              className="flex items-center gap-1 rounded-md bg-brass-600 px-2.5 py-1.5 text-xs font-medium text-white transition-colors duration-150 hover:bg-brass-700 disabled:opacity-60"
+              className="flex items-center gap-1 rounded-md bg-brass-600 px-2.5 py-1.5 text-xs font-medium text-white transition-all duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100"
             >
               <Send className="h-3.5 w-3.5" />
               Post
@@ -183,13 +183,21 @@ function BugRow({ bug, projectId, myDeveloperId }: { bug: Bug; projectId: string
   const updateBug = useUpdateBug(projectId);
   const deleteBug = useDeleteBug(projectId);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [hasOpened, setHasOpened] = useState(false);
+
+  function toggle() {
+    setIsExpanded((v) => {
+      if (!v) setHasOpened(true);
+      return !v;
+    });
+  }
 
   return (
     <>
       <tr className={`border-t border-line border-l-[3px] ${SEVERITY_STRIPE[bug.severity]}`}>
         <td className="px-3 py-2">
           <button
-            onClick={() => setIsExpanded((v) => !v)}
+            onClick={toggle}
             className="flex items-center gap-1.5 text-left font-medium text-ink hover:text-brass-600"
           >
             {isExpanded ? <ChevronDown className="h-3.5 w-3.5 shrink-0" /> : <ChevronRight className="h-3.5 w-3.5 shrink-0" />}
@@ -228,10 +236,14 @@ function BugRow({ bug, projectId, myDeveloperId }: { bug: Bug; projectId: string
           </RoleGuard>
         </td>
       </tr>
-      {isExpanded && (
+      {hasOpened && (
         <tr className="border-t border-line bg-surface">
           <td colSpan={4} className="p-0">
-            <BugDetailsPanel bug={bug} canParticipate={canParticipate} />
+            <div className={`grid-rows-expand ${isExpanded ? "is-open" : ""}`}>
+              <div>
+                <BugDetailsPanel bug={bug} canParticipate={canParticipate} />
+              </div>
+            </div>
           </td>
         </tr>
       )}
@@ -287,8 +299,8 @@ export function ProjectDetailPage() {
           <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-ink-500">
             <span>{p.client?.name}</span>
             <span className="text-ink-200">•</span>
-            <ProjectStatusBadge status={p.status} />
-            <PriorityBadge priority={p.priority} />
+            <ProjectStatusBadge status={p.status} stamp />
+            <PriorityBadge priority={p.priority} stamp />
           </div>
         </div>
         <button

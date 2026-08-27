@@ -47,10 +47,14 @@ function TeamRosterView() {
             </tr>
           </thead>
           <tbody>
-            {developers.data?.items.map((d) => {
+            {developers.data?.items.map((d, i) => {
               const w = workloadByDevId.get(d.id);
               return (
-                <tr key={d.id} className="border-t border-line transition-colors duration-150 hover:bg-parchment">
+                <tr
+                  key={d.id}
+                  style={{ animationDelay: `${Math.min(i, 10) * 30}ms` }}
+                  className="animate-fade-in-up border-t border-line transition-colors duration-150 hover:bg-parchment"
+                >
                   <td className="px-4 py-2 font-medium text-ink">{d.user.name}</td>
                   <td className="px-4 py-2 text-ink-500">{d.seniority}</td>
                   <td className="px-4 py-2 text-ink-500">{d.skills.map((s) => s.skill.name).join(", ") || "-"}</td>

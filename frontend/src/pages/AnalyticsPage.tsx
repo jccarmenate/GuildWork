@@ -18,15 +18,20 @@ function Panel({
   title,
   description,
   span,
+  delay = 0,
   children
 }: {
   title: string;
   description?: string;
   span?: "full";
+  delay?: number;
   children: React.ReactNode;
 }) {
   return (
-    <section className={`rounded-lg border border-line bg-surface p-6 shadow-sm ${span === "full" ? "lg:col-span-2" : ""}`}>
+    <section
+      style={{ animationDelay: `${delay}ms` }}
+      className={`animate-fade-in-up rounded-lg border border-line bg-surface p-6 shadow-sm ${span === "full" ? "lg:col-span-2" : ""}`}
+    >
       <h2 className="text-sm font-semibold text-ink-600">{title}</h2>
       {description && <p className="mt-0.5 text-xs text-ink-400">{description}</p>}
       <div className="mt-4">{children}</div>
@@ -50,11 +55,11 @@ export function AnalyticsPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <Panel title="Bugs by severity">
+        <Panel title="Bugs by severity" delay={0}>
           <SeverityBarChart data={bugSeverity.data} />
         </Panel>
 
-        <Panel title="Top performers" description="Ranked by high/critical bugs resolved">
+        <Panel title="Top performers" description="Ranked by high/critical bugs resolved" delay={60}>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
@@ -82,7 +87,7 @@ export function AnalyticsPage() {
           </div>
         </Panel>
 
-        <Panel title="Project completion" description="Share of a group's projects marked Completed" span="full">
+        <Panel title="Project completion" description="Share of a group's projects marked Completed" span="full" delay={120}>
           <div className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
             <div className="space-y-3">
               <h3 className="text-[11px] font-medium uppercase tracking-wide text-ink-400">By client</h3>
@@ -104,7 +109,7 @@ export function AnalyticsPage() {
           </div>
         </Panel>
 
-        <Panel title="Skill coverage" description="Active projects requiring a skill, minus developers who have it">
+        <Panel title="Skill coverage" description="Active projects requiring a skill, minus developers who have it" delay={180}>
           <DivergingBarList
             rows={
               skillCoverage.data?.map((row) => ({
@@ -119,7 +124,7 @@ export function AnalyticsPage() {
           />
         </Panel>
 
-        <Panel title="Developer workload">
+        <Panel title="Developer workload" delay={240}>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
@@ -142,7 +147,7 @@ export function AnalyticsPage() {
           </div>
         </Panel>
 
-        <Panel title="Mentorship" span="full">
+        <Panel title="Mentorship" span="full" delay={300}>
           {mentorship.data?.length === 0 ? (
             <EmptyState icon={GraduationCap} title="No mentorships set up yet" />
           ) : (

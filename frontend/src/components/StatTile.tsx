@@ -23,12 +23,15 @@ interface StatTileProps {
   value: string | number;
   icon: LucideIcon;
   tint?: StatTint;
+  /** Stagger delay in ms, when a row of tiles should count in one after another. */
+  delay?: number;
 }
 
-export function StatTile({ label, value, icon: Icon, tint = "brass" }: StatTileProps) {
+export function StatTile({ label, value, icon: Icon, tint = "brass", delay = 0 }: StatTileProps) {
   return (
     <div
-      className={`flex items-center gap-4 rounded-lg border border-line border-l-[3px] bg-surface p-5 shadow-sm ${STRIPE_CLASSES[tint]}`}
+      style={delay ? { animationDelay: `${delay}ms` } : undefined}
+      className={`animate-fade-in-up flex items-center gap-4 rounded-lg border border-line border-l-[3px] bg-surface p-5 shadow-sm ${STRIPE_CLASSES[tint]}`}
     >
       <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${ICON_CLASSES[tint]}`}>
         <Icon className="h-5 w-5" />

@@ -75,8 +75,12 @@ export function ClientsPage() {
                 </tr>
               </thead>
               <tbody>
-                {clients.data!.items.map((c) => (
-                  <tr key={c.id} className="border-t border-line transition-colors duration-150 hover:bg-parchment">
+                {clients.data!.items.map((c, i) => (
+                  <tr
+                    key={c.id}
+                    style={{ animationDelay: `${Math.min(i, 10) * 30}ms` }}
+                    className="animate-fade-in-up border-t border-line transition-colors duration-150 hover:bg-parchment"
+                  >
                     <td className="px-4 py-2">
                       {editingId === c.id ? (
                         <input

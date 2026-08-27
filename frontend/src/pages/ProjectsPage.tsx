@@ -199,10 +199,11 @@ export function ProjectsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {projects.data!.items.map((p) => (
+                  {projects.data!.items.map((p, i) => (
                     <tr
                       key={p.id}
-                      className={`border-t border-line border-l-[3px] transition-colors duration-150 hover:bg-parchment ${STATUS_STRIPE[p.status]}`}
+                      style={{ animationDelay: `${Math.min(i, 10) * 30}ms` }}
+                      className={`animate-fade-in-up border-t border-line border-l-[3px] transition-colors duration-150 hover:bg-parchment ${STATUS_STRIPE[p.status]}`}
                     >
                       <td className="px-4 py-2">
                         <Link to={`/projects/${p.id}`} className="font-medium text-brass-600 hover:text-brass-700 hover:underline">

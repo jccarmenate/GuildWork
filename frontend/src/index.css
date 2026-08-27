@@ -40,18 +40,41 @@
     }
   }
 
+  /* A small ink-stamp impact: overshoots slightly then settles, the way a
+     rubber stamp thumps down and rocks back — used once, on a badge's
+     first mount, never looped or re-triggered on every re-render. */
+  @keyframes stamp-in {
+    0% {
+      opacity: 0;
+      transform: scale(1.35) rotate(-6deg);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(0.94) rotate(1deg);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
+  }
+
   .animate-fade-in-up {
-    animation: fade-in-up 240ms ease-out;
+    animation: fade-in-up 240ms ease-out backwards;
   }
 
   .animate-fade-in {
-    animation: fade-in 300ms ease-out;
+    animation: fade-in 300ms ease-out backwards;
+  }
+
+  .animate-stamp-in {
+    animation: stamp-in 260ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-in-up,
-  .animate-fade-in {
+  .animate-fade-in,
+  .animate-stamp-in {
     animation: none;
   }
 }
@@ -60,5 +83,29 @@
   .bg-dot-grid {
     background-image: radial-gradient(circle, rgb(150 102 42 / 0.22) 1px, transparent 1px);
     background-size: 22px 22px;
+  }
+
+  /* Animate to an unknown content height via a 0fr -> 1fr grid track,
+     rather than guessing a max-height. The inner element must have
+     min-height: 0 so it can actually collapse to zero. */
+  .grid-rows-expand {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 220ms ease-out;
+  }
+
+  .grid-rows-expand.is-open {
+    grid-template-rows: 1fr;
+  }
+
+  .grid-rows-expand > * {
+    overflow: hidden;
+    min-height: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid-rows-expand {
+    transition: none;
   }
 }

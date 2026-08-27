@@ -25,18 +25,24 @@ function ManagerDashboard() {
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <StatTile label="Total bugs tracked" value={totalBugs} icon={BugIcon} tint="amber" />
-        <StatTile label="Avg. completion rate" value={`${Math.round(overallCompletion * 100)}%`} icon={Gauge} tint="emerald" />
-        <StatTile label="Top performers tracked" value={topPerformers.data?.length ?? 0} icon={Award} tint="brass" />
+        <StatTile label="Total bugs tracked" value={totalBugs} icon={BugIcon} tint="amber" delay={0} />
+        <StatTile label="Avg. completion rate" value={`${Math.round(overallCompletion * 100)}%`} icon={Gauge} tint="emerald" delay={80} />
+        <StatTile label="Top performers tracked" value={topPerformers.data?.length ?? 0} icon={Award} tint="brass" delay={160} />
       </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
-        <div className="rounded-lg border border-line bg-surface p-6 shadow-sm lg:col-span-3">
+        <div
+          style={{ animationDelay: "220ms" }}
+          className="animate-fade-in-up rounded-lg border border-line bg-surface p-6 shadow-sm lg:col-span-3"
+        >
           <h2 className="text-sm font-semibold text-ink-600">Bugs by severity</h2>
           <div className="mt-4">{bugSeverity.isLoading ? <Spinner /> : <SeverityBarChart data={bugSeverity.data} />}</div>
         </div>
 
-        <div className="rounded-lg border border-line bg-surface p-6 shadow-sm lg:col-span-2">
+        <div
+          style={{ animationDelay: "280ms" }}
+          className="animate-fade-in-up rounded-lg border border-line bg-surface p-6 shadow-sm lg:col-span-2"
+        >
           <h2 className="text-sm font-semibold text-ink-600">Top performers</h2>
           <p className="mt-0.5 text-xs text-ink-400">High/critical bugs resolved</p>
           <div className="mt-4">
@@ -74,9 +80,9 @@ function DeveloperDashboard() {
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <StatTile label="Assigned projects" value={projects.data?.items.length ?? 0} icon={FolderKanban} tint="brass" />
-        <StatTile label="Open bugs" value={openBugs.length} icon={BugIcon} tint="amber" />
-        <StatTile label="Skills logged" value={profile.data?.skills.length ?? 0} icon={Sparkles} tint="violet" />
+        <StatTile label="Assigned projects" value={projects.data?.items.length ?? 0} icon={FolderKanban} tint="brass" delay={0} />
+        <StatTile label="Open bugs" value={openBugs.length} icon={BugIcon} tint="amber" delay={80} />
+        <StatTile label="Skills logged" value={profile.data?.skills.length ?? 0} icon={Sparkles} tint="violet" delay={160} />
       </div>
 
       <div className="rounded-lg border border-line bg-surface p-6 shadow-sm">
