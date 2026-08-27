@@ -70,6 +70,8 @@ model User {
   bugsReported    Bug[]             @relation("BugReportedBy")
   auditLogs       AuditLog[]
   passwordResetTokens PasswordResetToken[]
+  bugComments     BugComment[]
+  bugAttachments  BugAttachment[]
 }
 
 model RefreshToken {
@@ -206,11 +208,39 @@ model Bug {
   description           String?
   severity              Severity          @default(MEDIUM)
   status                BugStatus         @default(OPEN)
-  notes                 String?
   reportedByUserId      String
   reportedBy            User              @relation("BugReportedBy", fields: [reportedByUserId], references: [id])
   assignedToDeveloperId String?
   assignedTo            DeveloperProfile? @relation("BugAssignedTo", fields: [assignedToDeveloperId], references: [id])
   createdAt             DateTime          @default(now())
   resolvedAt            DateTime?
+  comments              BugComment[]
+  attachments           BugAttachment[]
+}
+
+model BugComment {
+  id             String   @id @default(uuid())
+  bugId          String
+  bug            Bug      @relation(fields: [bugId], references: [id], onDelete: Cascade)
+  authorUserId   String
+  author         User     @relation(fields: [authorUserId], references: [id])
+  body           String
+  createdAt      DateTime @default(now())
+
+  @@index([bugId])
+}
+
+model BugAttachment {
+  id               String   @id @default(uuid())
+  bugId            String
+  bug              Bug      @relation(fields: [bugId], references: [id], onDelete: Cascade)
+  uploadedByUserId String
+  uploadedBy       User     @relation(fields: [uploadedByUserId], references: [id])
+  filename         String
+  mimeType         String
+  size             Int
+  data             Bytes
+  createdAt        DateTime @default(now())
+
+  @@index([bugId])
 }

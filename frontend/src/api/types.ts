@@ -70,11 +70,27 @@ export interface Bug {
   description: string | null;
   severity: Severity;
   status: BugStatus;
-  notes: string | null;
   reportedByUserId: string;
   assignedToDeveloperId: string | null;
   createdAt: string;
   resolvedAt: string | null;
+}
+
+export interface BugComment {
+  id: string;
+  bugId: string;
+  body: string;
+  createdAt: string;
+  author: { id: string; name: string };
+}
+
+export interface BugAttachment {
+  id: string;
+  filename: string;
+  mimeType: string;
+  size: number;
+  createdAt: string;
+  uploadedBy: { id: string; name: string };
 }
 
 export interface Page<T> {

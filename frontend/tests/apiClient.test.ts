@@ -50,3 +50,23 @@ describe("apiFetch 401 -> refresh -> retry-once", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("apiFetch with a FormData body", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("does not force a JSON Content-Type, so the browser can set the multipart boundary", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(new Response(JSON.stringify({ ok: true }), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const form = new FormData();
+    form.set("file", new Blob(["hi"]), "hi.png");
+
+    await apiFetch("/api/bugs/bug-1/attachments", { method: "POST", body: form });
+
+    const call = fetchMock.mock.calls[0];
+    const headers = call[1].headers as Headers;
+    expect(headers.has("Content-Type")).toBe(false);
+  });
+});

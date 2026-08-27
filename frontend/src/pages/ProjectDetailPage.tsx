@@ -1,6 +1,17 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Bug as BugIcon, Download, Plus, Trash2, UserMinus, X } from "lucide-react";
+import {
+  Bug as BugIcon,
+  ChevronDown,
+  ChevronRight,
+  Download,
+  Paperclip,
+  Plus,
+  Send,
+  Trash2,
+  UserMinus,
+  X
+} from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
 import { apiFetchBlob } from "../api/client";
 import {
@@ -11,7 +22,15 @@ import {
   useRemoveProjectSkill,
   useUnassignDeveloper
 } from "../api/projects";
-import { useDeleteBug, useUpdateBug } from "../api/bugs";
+import {
+  useAddBugComment,
+  useBugAttachments,
+  useBugComments,
+  useDeleteBug,
+  useDeleteBugAttachment,
+  useUpdateBug,
+  useUploadBugAttachment
+} from "../api/bugs";
 import { useDevelopers, useMyDeveloperProfile } from "../api/developers";
 import { useSkills } from "../api/skills";
 import { RoleGuard } from "../components/RoleGuard";
@@ -20,69 +39,196 @@ import { Spinner } from "../components/Spinner";
 import { BugStatusBadge, ProjectStatusBadge, PriorityBadge, SeverityBadge } from "../components/Badges";
 import type { Bug, Severity } from "../api/types";
 
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function BugDetailsPanel({ bug, canParticipate }: { bug: Bug; canParticipate: boolean }) {
+  const comments = useBugComments(bug.id);
+  const attachments = useBugAttachments(bug.id);
+  const addComment = useAddBugComment(bug.id);
+  const uploadAttachment = useUploadBugAttachment(bug.id);
+  const deleteAttachment = useDeleteBugAttachment(bug.id);
+  const [commentBody, setCommentBody] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function downloadAttachment(attachmentId: string, filename: string) {
+    const blob = await apiFetchBlob(`/api/bugs/${bug.id}/attachments/${attachmentId}`);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  return (
+    <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2">
+      <div>
+        <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Comments</h3>
+        {comments.isLoading ? (
+          <Spinner label="Loading comments..." />
+        ) : (
+          <ul className="mb-3 max-h-56 space-y-2 overflow-y-auto pr-1">
+            {comments.data?.map((c) => (
+              <li key={c.id} className="rounded-md bg-slate-50 px-3 py-2 text-sm">
+                <div className="mb-0.5 flex items-center justify-between text-xs text-slate-500">
+                  <span className="font-medium text-slate-700">{c.author.name}</span>
+                  <span>{new Date(c.createdAt).toLocaleString()}</span>
+                </div>
+                <p className="whitespace-pre-wrap text-slate-700">{c.body}</p>
+              </li>
+            ))}
+            {comments.data?.length === 0 && <p className="text-sm text-slate-500">No comments yet.</p>}
+          </ul>
+        )}
+        {canParticipate && (
+          <div className="flex gap-1.5">
+            <textarea
+              value={commentBody}
+              onChange={(e) => setCommentBody(e.target.value)}
+              placeholder="Add a comment..."
+              rows={1}
+              className="flex-1 resize-none rounded-md border border-slate-300 px-2 py-1.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+            <button
+              onClick={() => {
+                if (!commentBody.trim()) return;
+                addComment.mutate(commentBody, { onSuccess: () => setCommentBody("") });
+              }}
+              disabled={addComment.isPending}
+              className="flex items-center gap-1 rounded-md bg-indigo-600 px-2.5 py-1.5 text-xs font-medium text-white transition-colors duration-150 hover:bg-indigo-700 disabled:opacity-60"
+            >
+              <Send className="h-3.5 w-3.5" />
+              Post
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div>
+        <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Attachments</h3>
+        <ul className="mb-3 space-y-1.5">
+          {attachments.data?.map((a) => (
+            <li key={a.id} className="flex items-center justify-between rounded-md bg-slate-50 px-3 py-1.5 text-sm">
+              <button
+                onClick={() => void downloadAttachment(a.id, a.filename)}
+                className="flex items-center gap-1.5 truncate text-left text-indigo-600 hover:text-indigo-700 hover:underline"
+                title={a.filename}
+              >
+                <Paperclip className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{a.filename}</span>
+              </button>
+              <span className="ml-2 flex items-center gap-2 shrink-0 text-xs text-slate-400">
+                {formatBytes(a.size)}
+                <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
+                  <button
+                    onClick={() => deleteAttachment.mutate(a.id)}
+                    aria-label={`Delete ${a.filename}`}
+                    className="text-slate-400 transition-colors duration-150 hover:text-red-600"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </RoleGuard>
+              </span>
+            </li>
+          ))}
+          {attachments.data?.length === 0 && <p className="text-sm text-slate-500">No attachments yet.</p>}
+        </ul>
+        {canParticipate && (
+          <>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/gif,image/webp,application/pdf"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) uploadAttachment.mutate(file);
+                if (fileInputRef.current) fileInputRef.current.value = "";
+              }}
+              className="hidden"
+              id={`attachment-input-${bug.id}`}
+            />
+            <label
+              htmlFor={`attachment-input-${bug.id}`}
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-50"
+            >
+              <Paperclip className="h-3.5 w-3.5" />
+              {uploadAttachment.isPending ? "Uploading..." : "Attach a file"}
+            </label>
+            {uploadAttachment.isError && (
+              <p className="mt-1 text-xs text-red-600">Could not upload that file (max 5 MB, images or PDF).</p>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function BugRow({ bug, projectId, myDeveloperId }: { bug: Bug; projectId: string; myDeveloperId?: string }) {
   const { user } = useAuth();
   const isManager = user?.role === "ADMIN" || user?.role === "PROJECT_MANAGER";
   const isMine = bug.assignedToDeveloperId === myDeveloperId;
+  const canParticipate = isManager || isMine;
   const updateBug = useUpdateBug(projectId);
   const deleteBug = useDeleteBug(projectId);
-  const [notes, setNotes] = useState(bug.notes ?? "");
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <tr className="border-t border-slate-100">
-      <td className="px-3 py-2">{bug.title}</td>
-      <td className="px-3 py-2">
-        <SeverityBadge severity={bug.severity} />
-      </td>
-      <td className="px-3 py-2">
-        {isManager || isMine ? (
-          <select
-            value={bug.status}
-            onChange={(e) => updateBug.mutate({ id: bug.id, data: { status: e.target.value } })}
-            className="rounded-md border border-slate-300 px-2 py-1 text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-          >
-            {["OPEN", "IN_PROGRESS", "RESOLVED", "WONT_FIX"].map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <BugStatusBadge status={bug.status} />
-        )}
-      </td>
-      <td className="px-3 py-2">
-        {isManager || isMine ? (
-          <div className="flex gap-1">
-            <input
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="w-40 rounded-md border border-slate-300 px-2 py-1 text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-              placeholder="Add a note..."
-            />
-            <button
-              onClick={() => updateBug.mutate({ id: bug.id, data: { notes } })}
-              className="rounded-md border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-50"
-            >
-              Save
-            </button>
-          </div>
-        ) : (
-          bug.notes ?? "-"
-        )}
-      </td>
-      <td className="px-3 py-2 text-right">
-        <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
+    <>
+      <tr className="border-t border-slate-100">
+        <td className="px-3 py-2">
           <button
-            onClick={() => deleteBug.mutate(bug.id)}
-            className="inline-flex items-center gap-1 text-xs font-medium text-red-600 transition-colors duration-150 hover:text-red-700"
+            onClick={() => setIsExpanded((v) => !v)}
+            className="flex items-center gap-1.5 text-left font-medium text-slate-900 hover:text-indigo-600"
           >
-            <Trash2 className="h-3.5 w-3.5" />
-            Delete
+            {isExpanded ? <ChevronDown className="h-3.5 w-3.5 shrink-0" /> : <ChevronRight className="h-3.5 w-3.5 shrink-0" />}
+            {bug.title}
           </button>
-        </RoleGuard>
-      </td>
-    </tr>
+        </td>
+        <td className="px-3 py-2">
+          <SeverityBadge severity={bug.severity} />
+        </td>
+        <td className="px-3 py-2">
+          {canParticipate ? (
+            <select
+              value={bug.status}
+              onChange={(e) => updateBug.mutate({ id: bug.id, data: { status: e.target.value } })}
+              className="rounded-md border border-slate-300 px-2 py-1 text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            >
+              {["OPEN", "IN_PROGRESS", "RESOLVED", "WONT_FIX"].map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <BugStatusBadge status={bug.status} />
+          )}
+        </td>
+        <td className="px-3 py-2 text-right">
+          <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
+            <button
+              onClick={() => deleteBug.mutate(bug.id)}
+              className="inline-flex items-center gap-1 text-xs font-medium text-red-600 transition-colors duration-150 hover:text-red-700"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Delete
+            </button>
+          </RoleGuard>
+        </td>
+      </tr>
+      {isExpanded && (
+        <tr className="border-t border-slate-100 bg-white">
+          <td colSpan={4} className="p-0">
+            <BugDetailsPanel bug={bug} canParticipate={canParticipate} />
+          </td>
+        </tr>
+      )}
+    </>
   );
 }
 
@@ -278,7 +424,6 @@ export function ProjectDetailPage() {
                   <th className="px-3 py-1">Title</th>
                   <th className="px-3 py-1">Severity</th>
                   <th className="px-3 py-1">Status</th>
-                  <th className="px-3 py-1">Notes</th>
                   <th className="px-3 py-1" />
                 </tr>
               </thead>

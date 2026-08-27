@@ -157,7 +157,6 @@ describe("Bugs: field-level restriction for Developers", () => {
     description: null,
     severity: Severity.MEDIUM,
     status: BugStatus.OPEN,
-    notes: null,
     reportedByUserId: "pm-1",
     assignedToDeveloperId: "dev-profile-1",
     createdAt: new Date(),
@@ -190,15 +189,15 @@ describe("Bugs: field-level restriction for Developers", () => {
     expect(prismaMock.bug.update).not.toHaveBeenCalled();
   });
 
-  it("Developer CAN update status and notes on their own assigned bug", async () => {
+  it("Developer CAN update status on their own assigned bug", async () => {
     prismaMock.bug.findUnique.mockResolvedValue(assignedBug as never);
     prismaMock.developerProfile.findUnique.mockResolvedValue({ id: "dev-profile-1", userId: "dev-user-1" } as never);
-    prismaMock.bug.update.mockResolvedValue({ ...assignedBug, status: BugStatus.IN_PROGRESS, notes: "investigating" } as never);
+    prismaMock.bug.update.mockResolvedValue({ ...assignedBug, status: BugStatus.IN_PROGRESS } as never);
 
     const res = await request(app)
       .patch("/api/bugs/bug-1")
       .set("Authorization", `Bearer ${devToken}`)
-      .send({ status: BugStatus.IN_PROGRESS, notes: "investigating" });
+      .send({ status: BugStatus.IN_PROGRESS });
 
     expect(res.status).toBe(200);
     expect(prismaMock.bug.update).toHaveBeenCalledOnce();
