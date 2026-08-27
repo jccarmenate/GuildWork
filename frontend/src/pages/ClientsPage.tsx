@@ -34,7 +34,7 @@ export function ClientsPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="mb-6 flex flex-col gap-2 rounded-lg border border-line bg-surface p-5 shadow-sm sm:flex-row sm:flex-wrap"
+        className="mb-6 flex flex-col gap-2 rounded-lg border border-line bg-surface p-6 shadow-sm sm:flex-row sm:flex-wrap"
       >
         <input
           placeholder="Client name"

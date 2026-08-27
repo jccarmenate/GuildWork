@@ -23,7 +23,10 @@ function TeamRosterView() {
 
   const workloadByDevId = new Map(workload.data?.map((w) => [w.developerId, w]));
 
-  if (developers.data?.items.length === 0) {
+  if (developers.isLoading) {
+    return <Spinner label="Loading team..." />;
+  }
+  if (!developers.data || developers.data.items.length === 0) {
     return <EmptyState icon={Users} title="No developers yet" />;
   }
 
@@ -98,8 +101,8 @@ function MyProfileView() {
   const mySkillIds = new Set(profile.data.skills.map((s) => s.skillId));
 
   return (
-    <div className="space-y-6">
-      <section className="rounded-lg border border-line bg-surface p-5 shadow-sm">
+    <div className="space-y-8">
+      <section className="rounded-lg border border-line bg-surface p-6 shadow-sm">
         <h2 className="mb-2 text-sm font-semibold text-ink-600">
           {profile.data.user.name} — {profile.data.seniority}
         </h2>
@@ -118,7 +121,7 @@ function MyProfileView() {
         </button>
       </section>
 
-      <section className="rounded-lg border border-line bg-surface p-5 shadow-sm">
+      <section className="rounded-lg border border-line bg-surface p-6 shadow-sm">
         <h2 className="mb-3 text-sm font-semibold text-ink-600">Your skills</h2>
         <div className="mb-3 flex flex-wrap gap-2">
           {profile.data.skills.map((s) => (

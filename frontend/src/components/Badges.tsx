@@ -1,13 +1,14 @@
 import type { ReactNode } from "react";
 import type { BugStatus, Priority, ProjectStatus, Severity, UserRole } from "../api/types";
 
-type BadgeColor = "slate" | "blue" | "amber" | "orange" | "emerald" | "red" | "violet";
+type BadgeColor = "slate" | "teal" | "blue" | "amber" | "orange" | "emerald" | "red" | "violet";
 
 // Reads like a classification stamp on a case file rather than a soft pill —
 // a small colored mark plus a mono, uppercase label, sitting on a hairline
 // border instead of a filled background.
 const COLOR_CLASSES: Record<BadgeColor, string> = {
   slate: "border-ink-200 text-ink-500",
+  teal: "border-teal-200 text-teal-700",
   blue: "border-sky-200 text-sky-700",
   amber: "border-amber-200 text-amber-700",
   orange: "border-orange-200 text-orange-700",
@@ -18,12 +19,24 @@ const COLOR_CLASSES: Record<BadgeColor, string> = {
 
 const DOT_CLASSES: Record<BadgeColor, string> = {
   slate: "bg-ink-400",
+  teal: "bg-teal-600",
   blue: "bg-sky-500",
   amber: "bg-amber-500",
   orange: "bg-orange-500",
   emerald: "bg-emerald-500",
   red: "bg-red-500",
   violet: "bg-violet-500"
+};
+
+// Validated (scripts/validate_palette.js) against the parchment surface —
+// every adjacent pair clears CVD ΔE ≥ 15 and the 3:1 contrast floor. Shared
+// between the Severity badge dot and the bug-severity charts so the same
+// four hues mean the same thing everywhere in the app.
+export const SEVERITY_CHART_COLORS: Record<Severity, string> = {
+  LOW: "#0D9488",
+  MEDIUM: "#2563EB",
+  HIGH: "#EA580C",
+  CRITICAL: "#991B1B"
 };
 
 interface BadgeProps {
@@ -71,7 +84,7 @@ const LEVEL_LABELS: Record<Priority | Severity, string> = {
 };
 
 const LEVEL_COLORS: Record<Priority | Severity, BadgeColor> = {
-  LOW: "slate",
+  LOW: "teal",
   MEDIUM: "blue",
   HIGH: "orange",
   CRITICAL: "red"

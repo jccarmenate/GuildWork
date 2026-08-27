@@ -280,7 +280,7 @@ export function ProjectDetailPage() {
   const requiredSkillIds = new Set(p.requiredSkills?.map((s) => s.skillId));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-2xl font-bold text-ink">{p.name}</h1>
@@ -301,7 +301,7 @@ export function ProjectDetailPage() {
         </button>
       </div>
 
-      <section className="rounded-lg border border-line bg-surface p-5 shadow-sm">
+      <section className="rounded-lg border border-line bg-surface p-6 shadow-sm">
         <h2 className="mb-3 text-sm font-semibold text-ink-600">Assigned developers</h2>
         <ul className="mb-3 divide-y divide-line">
           {p.assignments?.map((a) => (
@@ -343,7 +343,7 @@ export function ProjectDetailPage() {
         </RoleGuard>
       </section>
 
-      <section className="rounded-lg border border-line bg-surface p-5 shadow-sm">
+      <section className="rounded-lg border border-line bg-surface p-6 shadow-sm">
         <h2 className="mb-3 text-sm font-semibold text-ink-600">Required skills</h2>
         <div className="mb-3 flex flex-wrap gap-2">
           {p.requiredSkills?.map((rs) => (
@@ -385,7 +385,7 @@ export function ProjectDetailPage() {
         </RoleGuard>
       </section>
 
-      <section className="rounded-lg border border-line bg-surface p-5 shadow-sm">
+      <section className="rounded-lg border border-line bg-surface p-6 shadow-sm">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-ink-600">Bugs</h2>
         </div>

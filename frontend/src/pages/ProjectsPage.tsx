@@ -46,7 +46,7 @@ function NewProjectForm({ onDone }: { onDone: () => void }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mb-6 space-y-3 rounded-lg border border-line bg-surface p-5 shadow-sm">
+    <form onSubmit={handleSubmit} className="mb-6 space-y-3 rounded-lg border border-line bg-surface p-6 shadow-sm">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <input
           placeholder="Project name"

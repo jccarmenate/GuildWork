@@ -1,4 +1,3 @@
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { GraduationCap } from "lucide-react";
 import {
   useBugSeverityAnalytics,
@@ -10,15 +9,27 @@ import {
 } from "../api/analytics";
 import { EmptyState } from "../components/EmptyState";
 import { PriorityBadge } from "../components/Badges";
+import { SeverityBarChart } from "../components/charts/SeverityBarChart";
+import { Meter } from "../components/Meter";
+import { DivergingBarList } from "../components/DivergingBarList";
 import type { Priority } from "../api/types";
 
-const CHART_COLOR = "#96662A";
-
-function Panel({ title, children }: { title: string; children: React.ReactNode }) {
+function Panel({
+  title,
+  description,
+  span,
+  children
+}: {
+  title: string;
+  description?: string;
+  span?: "full";
+  children: React.ReactNode;
+}) {
   return (
-    <section className="rounded-lg border border-line bg-surface p-5 shadow-sm">
-      <h2 className="mb-3 text-sm font-semibold text-ink-600">{title}</h2>
-      {children}
+    <section className={`rounded-lg border border-line bg-surface p-6 shadow-sm ${span === "full" ? "lg:col-span-2" : ""}`}>
+      <h2 className="text-sm font-semibold text-ink-600">{title}</h2>
+      {description && <p className="mt-0.5 text-xs text-ink-400">{description}</p>}
+      <div className="mt-4">{children}</div>
     </section>
   );
 }
@@ -32,140 +43,129 @@ export function AnalyticsPage() {
   const topPerformers = useTopPerformersAnalytics();
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-ink">Analytics</h1>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-2xl font-semibold text-ink">Analytics</h1>
+        <p className="mt-1 text-sm text-ink-500">A ledger of how the guild is doing — load, coverage, and who's carrying what.</p>
+      </div>
 
-      <Panel title="Bug severity breakdown">
-        <ResponsiveContainer width="100%" height={220}>
-          <BarChart data={bugSeverity.data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E1D9C6" />
-            <XAxis dataKey="severity" />
-            <YAxis allowDecimals={false} />
-            <Tooltip />
-            <Bar dataKey="count" fill={CHART_COLOR} radius={[4, 4, 0, 0]} animationDuration={500} />
-          </BarChart>
-        </ResponsiveContainer>
-      </Panel>
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <Panel title="Bugs by severity">
+          <SeverityBarChart data={bugSeverity.data} />
+        </Panel>
 
-      <Panel title="Developer workload">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="text-ink-500">
-              <tr>
-                <th className="py-1">Developer</th>
-                <th className="py-1">Active assignments</th>
-                <th className="py-1">Open bugs</th>
-              </tr>
-            </thead>
-            <tbody>
-              {workload.data?.map((row) => (
-                <tr key={row.developerId} className="border-t border-line">
-                  <td className="py-1.5">{row.name}</td>
-                  <td className="py-1.5">{row.activeAssignments}</td>
-                  <td className="py-1.5">{row.openBugs}</td>
+        <Panel title="Top performers" description="Ranked by high/critical bugs resolved">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="text-xs uppercase tracking-wide text-ink-400">
+                  <th className="pb-2 font-medium">Developer</th>
+                  <th className="pb-2 text-right font-medium">Resolved</th>
+                  <th className="pb-2 text-right font-medium">Avg. hrs</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Panel>
+              </thead>
+              <tbody className="divide-y divide-line">
+                {topPerformers.data?.map((row, i) => (
+                  <tr key={row.developerId}>
+                    <td className="py-2 text-ink-600">
+                      <span className="mr-2 font-mono text-xs text-ink-400">{String(i + 1).padStart(2, "0")}</span>
+                      {row.name}
+                    </td>
+                    <td className="py-2 text-right font-mono tabular-nums text-ink">{row.resolvedHighSeverityCount}</td>
+                    <td className="py-2 text-right font-mono tabular-nums text-ink-500">
+                      {row.avgResolutionHours ? row.avgResolutionHours.toFixed(1) : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Panel>
 
-      <Panel title="Mentorship">
-        {mentorship.data?.length === 0 ? (
-          <EmptyState icon={GraduationCap} title="No mentorships set up yet" />
-        ) : (
-          <ul className="space-y-2 text-sm">
-            {mentorship.data?.map((m) => (
-              <li key={m.mentorId}>
-                <span className="font-medium text-ink">{m.mentorName}</span>
-                <ul className="ml-4 list-disc text-ink-500">
-                  {m.mentees.map((mentee) => (
-                    <li key={mentee.developerId}>
-                      {mentee.name} — {mentee.resolvedBugCount} bugs resolved
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Panel>
-
-      <Panel title="Project completion rate">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <h3 className="mb-2 text-xs font-medium uppercase text-ink-500">By client</h3>
-            <ul className="text-sm text-ink-600">
+        <Panel title="Project completion" description="Share of a group's projects marked Completed" span="full">
+          <div className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
+            <div className="space-y-3">
+              <h3 className="text-[11px] font-medium uppercase tracking-wide text-ink-400">By client</h3>
               {completion.data?.byClient.map((c) => (
-                <li key={c.clientId}>
-                  {c.clientName}: {Math.round(c.completionRate * 100)}% ({c.total} projects)
-                </li>
+                <Meter key={c.clientId} label={c.clientName} value={c.completionRate} detail={`${c.total} projects`} />
               ))}
-            </ul>
-          </div>
-          <div>
-            <h3 className="mb-2 text-xs font-medium uppercase text-ink-500">By priority</h3>
-            <ul className="space-y-1.5 text-sm text-ink-600">
+            </div>
+            <div className="space-y-3">
+              <h3 className="text-[11px] font-medium uppercase tracking-wide text-ink-400">By priority</h3>
               {completion.data?.byPriority.map((p) => (
-                <li key={p.priority} className="flex items-center gap-2">
+                <div key={p.priority} className="flex items-center gap-3">
                   <PriorityBadge priority={p.priority as Priority} />
-                  <span>
-                    {Math.round(p.completionRate * 100)}% ({p.total} projects)
-                  </span>
-                </li>
+                  <div className="flex-1">
+                    <Meter label="" value={p.completionRate} detail={`${p.total} projects`} />
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
-        </div>
-      </Panel>
+        </Panel>
 
-      <Panel title="Skill coverage">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="text-ink-500">
-              <tr>
-                <th className="py-1">Skill</th>
-                <th className="py-1">Developers</th>
-                <th className="py-1">Active projects requiring</th>
-                <th className="py-1">Gap</th>
-              </tr>
-            </thead>
-            <tbody>
-              {skillCoverage.data?.map((row) => (
-                <tr key={row.skillId} className="border-t border-line">
-                  <td className="py-1.5">{row.name}</td>
-                  <td className="py-1.5">{row.developersWithSkill}</td>
-                  <td className="py-1.5">{row.activeProjectsRequiring}</td>
-                  <td className={`py-1.5 font-medium ${row.gap > 0 ? "text-red-600" : "text-ink-500"}`}>{row.gap}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Panel>
+        <Panel title="Skill coverage" description="Active projects requiring a skill, minus developers who have it">
+          <DivergingBarList
+            rows={
+              skillCoverage.data?.map((row) => ({
+                id: row.skillId,
+                label: row.name,
+                value: row.gap,
+                detail: `(${row.developersWithSkill}/${row.activeProjectsRequiring})`
+              })) ?? []
+            }
+            positiveLabel="Shortage"
+            negativeLabel="Surplus"
+          />
+        </Panel>
 
-      <Panel title="Top performers">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="text-ink-500">
-              <tr>
-                <th className="py-1">Developer</th>
-                <th className="py-1">High/critical bugs resolved</th>
-                <th className="py-1">Avg. resolution (hrs)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {topPerformers.data?.map((row) => (
-                <tr key={row.developerId} className="border-t border-line">
-                  <td className="py-1.5">{row.name}</td>
-                  <td className="py-1.5">{row.resolvedHighSeverityCount}</td>
-                  <td className="py-1.5">{row.avgResolutionHours ? row.avgResolutionHours.toFixed(1) : "n/a"}</td>
+        <Panel title="Developer workload">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="text-xs uppercase tracking-wide text-ink-400">
+                  <th className="pb-2 font-medium">Developer</th>
+                  <th className="pb-2 text-right font-medium">Active</th>
+                  <th className="pb-2 text-right font-medium">Open bugs</th>
                 </tr>
+              </thead>
+              <tbody className="divide-y divide-line">
+                {workload.data?.map((row) => (
+                  <tr key={row.developerId}>
+                    <td className="py-2 text-ink-600">{row.name}</td>
+                    <td className="py-2 text-right font-mono tabular-nums text-ink">{row.activeAssignments}</td>
+                    <td className="py-2 text-right font-mono tabular-nums text-ink">{row.openBugs}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Panel>
+
+        <Panel title="Mentorship" span="full">
+          {mentorship.data?.length === 0 ? (
+            <EmptyState icon={GraduationCap} title="No mentorships set up yet" />
+          ) : (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {mentorship.data?.map((m) => (
+                <div key={m.mentorId} className="rounded-md border border-line p-3">
+                  <p className="flex items-center gap-1.5 text-sm font-medium text-ink">
+                    <GraduationCap className="h-3.5 w-3.5 text-brass-600" />
+                    {m.mentorName}
+                  </p>
+                  <ul className="mt-2 space-y-1 border-l border-line pl-3 text-xs text-ink-500">
+                    {m.mentees.map((mentee) => (
+                      <li key={mentee.developerId}>
+                        {mentee.name} <span className="text-ink-400">— {mentee.resolvedBugCount} resolved</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </Panel>
+            </div>
+          )}
+        </Panel>
+      </div>
     </div>
   );
 }

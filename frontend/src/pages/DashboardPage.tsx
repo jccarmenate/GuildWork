@@ -1,4 +1,3 @@
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Award, Bug as BugIcon, FolderKanban, Gauge, GraduationCap, Sparkles } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
 import { useBugSeverityAnalytics, useProjectCompletionAnalytics, useTopPerformersAnalytics } from "../api/analytics";
@@ -8,9 +7,8 @@ import { useProjects } from "../api/projects";
 import { StatTile } from "../components/StatTile";
 import { EmptyState } from "../components/EmptyState";
 import { Spinner } from "../components/Spinner";
+import { SeverityBarChart } from "../components/charts/SeverityBarChart";
 import { BugStatusBadge, ProjectStatusBadge, SeverityBadge } from "../components/Badges";
-
-const CHART_COLOR = "#96662A";
 
 function ManagerDashboard() {
   const bugSeverity = useBugSeverityAnalytics();
@@ -25,58 +23,42 @@ function ManagerDashboard() {
       : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatTile label="Total bugs tracked" value={totalBugs} icon={BugIcon} tint="amber" />
         <StatTile label="Avg. completion rate" value={`${Math.round(overallCompletion * 100)}%`} icon={Gauge} tint="emerald" />
         <StatTile label="Top performers tracked" value={topPerformers.data?.length ?? 0} icon={Award} tint="brass" />
       </div>
 
-      <div className="rounded-lg border border-line bg-surface p-5 shadow-sm">
-        <h2 className="mb-4 text-sm font-semibold text-ink-600">Bugs by severity</h2>
-        {bugSeverity.isLoading ? (
-          <Spinner />
-        ) : (
-          <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={bugSeverity.data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E1D9C6" />
-              <XAxis dataKey="severity" />
-              <YAxis allowDecimals={false} />
-              <Tooltip />
-              <Bar dataKey="count" fill={CHART_COLOR} radius={[4, 4, 0, 0]} animationDuration={500} />
-            </BarChart>
-          </ResponsiveContainer>
-        )}
-      </div>
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
+        <div className="rounded-lg border border-line bg-surface p-6 shadow-sm lg:col-span-3">
+          <h2 className="text-sm font-semibold text-ink-600">Bugs by severity</h2>
+          <div className="mt-4">{bugSeverity.isLoading ? <Spinner /> : <SeverityBarChart data={bugSeverity.data} />}</div>
+        </div>
 
-      <div className="rounded-lg border border-line bg-surface p-5 shadow-sm">
-        <h2 className="mb-4 text-sm font-semibold text-ink-600">Top performers</h2>
-        {topPerformers.isLoading ? (
-          <Spinner />
-        ) : (topPerformers.data?.length ?? 0) === 0 ? (
-          <EmptyState icon={Award} title="No resolved high-severity bugs yet" />
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="text-ink-500">
-                  <th className="py-1">Developer</th>
-                  <th className="py-1">High/critical bugs resolved</th>
-                  <th className="py-1">Avg. resolution (hrs)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {topPerformers.data!.map((row) => (
-                  <tr key={row.developerId} className="border-t border-line">
-                    <td className="py-1.5">{row.name}</td>
-                    <td className="py-1.5">{row.resolvedHighSeverityCount}</td>
-                    <td className="py-1.5">{row.avgResolutionHours ? row.avgResolutionHours.toFixed(1) : "n/a"}</td>
-                  </tr>
+        <div className="rounded-lg border border-line bg-surface p-6 shadow-sm lg:col-span-2">
+          <h2 className="text-sm font-semibold text-ink-600">Top performers</h2>
+          <p className="mt-0.5 text-xs text-ink-400">High/critical bugs resolved</p>
+          <div className="mt-4">
+            {topPerformers.isLoading ? (
+              <Spinner />
+            ) : (topPerformers.data?.length ?? 0) === 0 ? (
+              <EmptyState icon={Award} title="No resolved high-severity bugs yet" />
+            ) : (
+              <ul className="divide-y divide-line">
+                {topPerformers.data!.map((row, i) => (
+                  <li key={row.developerId} className="flex items-center justify-between py-2 text-sm">
+                    <span className="flex items-center gap-2 text-ink-600">
+                      <span className="font-mono text-xs text-ink-400">{String(i + 1).padStart(2, "0")}</span>
+                      {row.name}
+                    </span>
+                    <span className="font-mono tabular-nums text-ink">{row.resolvedHighSeverityCount}</span>
+                  </li>
                 ))}
-              </tbody>
-            </table>
+              </ul>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
@@ -90,14 +72,14 @@ function DeveloperDashboard() {
   const openBugs = bugs.data?.items.filter((b) => b.status === "OPEN" || b.status === "IN_PROGRESS") ?? [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatTile label="Assigned projects" value={projects.data?.items.length ?? 0} icon={FolderKanban} tint="brass" />
         <StatTile label="Open bugs" value={openBugs.length} icon={BugIcon} tint="amber" />
         <StatTile label="Skills logged" value={profile.data?.skills.length ?? 0} icon={Sparkles} tint="violet" />
       </div>
 
-      <div className="rounded-lg border border-line bg-surface p-5 shadow-sm">
+      <div className="rounded-lg border border-line bg-surface p-6 shadow-sm">
         <h2 className="mb-3 text-sm font-semibold text-ink-600">Your assigned projects</h2>
         {projects.isLoading ? (
           <Spinner />
@@ -115,7 +97,7 @@ function DeveloperDashboard() {
         )}
       </div>
 
-      <div className="rounded-lg border border-line bg-surface p-5 shadow-sm">
+      <div className="rounded-lg border border-line bg-surface p-6 shadow-sm">
         <h2 className="mb-3 text-sm font-semibold text-ink-600">Your open bugs</h2>
         {openBugs.length === 0 ? (
           <EmptyState icon={BugIcon} title="No open bugs assigned to you" />
@@ -134,7 +116,7 @@ function DeveloperDashboard() {
         )}
       </div>
 
-      <div className="rounded-lg border border-line bg-surface p-5 shadow-sm">
+      <div className="rounded-lg border border-line bg-surface p-6 shadow-sm">
         <h2 className="mb-3 text-sm font-semibold text-ink-600">Your mentor</h2>
         {profile.data?.mentor ? (
           <p className="text-sm text-ink-600">{profile.data.mentor.user.name}</p>

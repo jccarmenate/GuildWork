@@ -35,7 +35,7 @@ export function StatTile({ label, value, icon: Icon, tint = "brass" }: StatTileP
       </div>
       <div>
         <p className="text-xs font-medium uppercase tracking-wide text-ink-500">{label}</p>
-        <p className="mt-1 font-display text-2xl font-semibold tabular-nums text-ink">{value}</p>
+        <p className="mt-1 text-2xl font-semibold text-ink">{value}</p>
       </div>
     </div>
   );
