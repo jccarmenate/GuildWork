@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GuildWork</title>
+<meta name="description" content="Role-based project-management system for a software consultancy — JWT auth with refresh-token rotation, Admin/PM/Developer permissions, bug tracking, analytics, and PDF reports.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0e14; --card:#151822; --border:#252b3a;
+    --text:#eaecf3; --text-dim:#9aa2b8; --text-faint:#606b83;
+    --accent:#8b7cff; --accent-2:#4fd1c5; --accent-3:#ff8a7a;
+    --code-bg:#0f1219;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#f8f8fc; --card:#ffffff; --border:#e4e5f0;
+      --text:#171a24; --text-dim:#4c5268; --text-faint:#8a90a5;
+      --accent:#5b3df0; --accent-2:#0c8f80; --accent-3:#d1523c;
+      --code-bg:#f1f1f8;
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg); color:var(--text); font-family:'Inter',system-ui,sans-serif; line-height:1.6}
+  code,.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+  .wrap{max-width:960px; margin:0 auto; padding:0 24px 80px}
+  header{padding:72px 0 36px; text-align:center}
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px; font-family:'JetBrains Mono',monospace;
+    font-size:12.5px; letter-spacing:.04em; color:var(--accent-2);
+    background:rgba(79,209,197,.08); border:1px solid rgba(79,209,197,.25);
+    border-radius:999px; padding:5px 14px; margin-bottom:22px;
+  }
+  h1{font-size:clamp(28px,5vw,42px); font-weight:800; margin:0 0 14px; letter-spacing:-0.02em}
+  .tagline{font-size:18px; color:var(--text-dim); max-width:660px; margin:0 auto 28px}
+  .cta{display:flex; gap:12px; justify-content:center; flex-wrap:wrap}
+  .btn{display:inline-flex; align-items:center; gap:8px; padding:11px 20px; border-radius:10px; font-weight:600; font-size:14.5px; text-decoration:none; border:1px solid var(--border)}
+  .btn-primary{background:var(--accent); color:#0c0e14; border-color:var(--accent)}
+  .btn-ghost{color:var(--text); background:var(--card)}
+  section{margin-top:60px}
+  h2{font-size:22px; font-weight:700; margin:0 0 20px; letter-spacing:-0.01em}
+  .gallery{display:grid; grid-template-columns:repeat(2,1fr); gap:14px}
+  .gallery figure{margin:0; border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--card)}
+  .gallery img{display:block; width:100%; height:auto}
+  .gallery figcaption{padding:10px 14px; font-size:13px; color:var(--text-dim); border-top:1px solid var(--border)}
+  .gallery .wide{grid-column:1/-1}
+  @media (max-width:640px){.gallery{grid-template-columns:1fr}}
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px}
+  .card{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px}
+  .card h3{margin:0 0 8px; font-size:15px; font-weight:700; color:var(--accent)}
+  .card p{margin:0; font-size:14px; color:var(--text-dim)}
+  table{width:100%; border-collapse:collapse; font-size:13.5px; background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--border)}
+  th{color:var(--text-faint); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.03em}
+  td.center,th.center{text-align:center}
+  tr:last-child td{border-bottom:none}
+  .stack{display:flex; flex-wrap:wrap; gap:8px}
+  .pill{font-family:'JetBrains Mono',monospace; font-size:12.5px; background:var(--code-bg); border:1px solid var(--border); color:var(--text-dim); padding:6px 11px; border-radius:8px}
+  footer{margin-top:80px; padding-top:28px; border-top:1px solid var(--border); text-align:center; color:var(--text-faint); font-size:13.5px}
+  footer a{color:var(--text-dim)}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">● role-based · server-enforced authorization</span>
+    <h1>GuildWork</h1>
+    <p class="tagline">Project-management system for a software consultancy: Admins and PMs run clients, projects, and bug tracking, while Developers see only what they're assigned to. Every permission is enforced server-side.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="https://github.com/jccarmenate/GuildWork">View source on GitHub →</a>
+      <a class="btn btn-ghost" href="#auth">Auth design</a>
+    </div>
+  </header>
+
+  <section>
+    <h2>Screenshots</h2>
+    <div class="gallery">
+      <figure class="wide"><img src="screenshots/01-dashboard.png" alt="Dashboard — role-aware landing page with live analytics" loading="lazy"><figcaption>Dashboard — role-aware landing page with live analytics</figcaption></figure>
+      <figure><img src="screenshots/02-analytics.png" alt="Analytics — severity, completion, workload, skill-gap, mentorship" loading="lazy"><figcaption>Analytics — severity, completion, workload, skill-gap, mentorship</figcaption></figure>
+      <figure><img src="screenshots/03-projects.png" alt="Projects — filterable list, status and priority at a glance" loading="lazy"><figcaption>Projects — filterable list, status/priority at a glance</figcaption></figure>
+      <figure><img src="screenshots/04-project-detail.png" alt="Project detail — assignments, required skills, bugs with threaded comments" loading="lazy"><figcaption>Project detail — assignments, skills, threaded bug comments</figcaption></figure>
+      <figure><img src="screenshots/05-clients.png" alt="Clients view" loading="lazy"><figcaption>Clients</figcaption></figure>
+      <figure><img src="screenshots/06-team.png" alt="Team — seniority, skills, mentor, workload, role management" loading="lazy"><figcaption>Team — seniority, skills, mentor, workload, role management</figcaption></figure>
+      <figure><img src="screenshots/00-login.png" alt="Sign in screen" loading="lazy"><figcaption>Sign in</figcaption></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Features</h2>
+    <div class="grid">
+      <div class="card"><h3>Role-based tracking</h3><p>Clients, projects, and bugs scoped by Admin / PM / Developer, enforced server-side.</p></div>
+      <div class="card"><h3>Analytics dashboard</h3><p>Bug severity, completion by client/priority, workload, skill-gap, and mentorship rollups — colorblind-safe palette.</p></div>
+      <div class="card"><h3>Bug comments & attachments</h3><p>Threaded discussion and file uploads (images/PDF) per bug, stored in Postgres.</p></div>
+      <div class="card"><h3>Audit log</h3><p>Every role change and destructive action recorded with actor, timestamp, and detail.</p></div>
+      <div class="card"><h3>Self-service auth</h3><p>Registration, login, password reset by email, silent token refresh via httpOnly cookie.</p></div>
+      <div class="card"><h3>PDF reports & email</h3><p>Server-generated per-project PDF reports; assignment and resolution email notifications.</p></div>
+    </div>
+  </section>
+
+  <section id="auth">
+    <h2>Authorization matrix</h2>
+    <table>
+      <tr><th>Route / action</th><th class="center">Admin</th><th class="center">PM</th><th class="center">Developer</th></tr>
+      <tr><td>Manage clients (CRUD)</td><td class="center">✅</td><td class="center">✅</td><td class="center">403</td></tr>
+      <tr><td>Create/edit/delete projects</td><td class="center">✅</td><td class="center">✅</td><td class="center">403</td></tr>
+      <tr><td>List all projects</td><td class="center">✅</td><td class="center">✅</td><td class="center">assigned only</td></tr>
+      <tr><td>Assign/unassign developers</td><td class="center">✅</td><td class="center">✅</td><td class="center">403</td></tr>
+      <tr><td>Edit a bug's status/notes</td><td class="center">✅</td><td class="center">✅</td><td class="center">if assigned</td></tr>
+      <tr><td>Reassign a bug / severity</td><td class="center">✅</td><td class="center">✅</td><td class="center">403</td></tr>
+      <tr><td>Change a user's role</td><td class="center">✅</td><td class="center">403</td><td class="center">403</td></tr>
+    </table>
+    <p style="color:var(--text-dim); font-size:13.5px; margin-top:14px">403 means "wrong role." 404 means "doesn't exist from your vantage point" — a Developer requesting an unassigned project gets 404, not 403, so the status code can't be used to probe which projects exist.</p>
+  </section>
+
+  <section>
+    <h2>Tech stack</h2>
+    <div class="stack">
+      <span class="pill">Node.js</span><span class="pill">Express</span><span class="pill">TypeScript</span><span class="pill">PostgreSQL</span><span class="pill">Prisma</span><span class="pill">zod</span>
+      <span class="pill">React</span><span class="pill">Vite</span><span class="pill">Tailwind CSS</span><span class="pill">TanStack Query</span><span class="pill">Recharts</span><span class="pill">Vitest</span>
+    </div>
+  </section>
+
+  <footer>
+    MIT licensed · <a href="https://github.com/jccarmenate/GuildWork">jccarmenate/GuildWork</a> · built by Juan Carlos
+  </footer>
+</div>
+</body>
+</html>
