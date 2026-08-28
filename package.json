@@ -7,7 +7,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/JuanCMath/guildwork.git"
+    "url": "https://github.com/jccarmenate/GuildWork.git"
   },
   "workspaces": [
     "backend",

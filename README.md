@@ -1,8 +1,34 @@
 # GuildWork
 
-![GuildWork demo](docs/screenshots/demo.gif)
-
 GuildWork is a project-management system for a software consultancy: Admins and Project Managers run clients, projects, and bug tracking, while Developers see only the projects they're assigned to and manage their own skill profile. The domain concept is original to this build — loosely inspired by a prior academic team project, but designed and implemented from scratch on a different stack.
+
+## Screenshots
+
+| | |
+|---|---|
+| **Dashboard** — role-aware landing page with live analytics | **Analytics** — severity, completion, workload, skill-gap, and mentorship, all in one ledger |
+| ![Dashboard](docs/screenshots/01-dashboard.png) | ![Analytics](docs/screenshots/02-analytics.png) |
+| **Projects** — filterable list, status/priority at a glance | **Project detail** — assignments, required skills, bugs with threaded comments |
+| ![Projects](docs/screenshots/03-projects.png) | ![Project detail](docs/screenshots/04-project-detail.png) |
+| **Clients** | **Team** — seniority, skills, mentor, workload, and role management |
+| ![Clients](docs/screenshots/05-clients.png) | ![Team](docs/screenshots/06-team.png) |
+
+<details>
+<summary>Sign in</summary>
+
+![Sign in](docs/screenshots/00-login.png)
+
+</details>
+
+## Features
+
+- **Role-based project & bug tracking** — clients, projects, and bugs scoped by Admin / Project Manager / Developer, enforced server-side (see the authorization matrix below).
+- **Analytics dashboard** — bug severity distribution, project completion by client/priority, developer workload, skill coverage gap (shortage vs. surplus), and mentorship rollups, built with a validated, colorblind-safe chart palette.
+- **Bug comments & attachments** — threaded discussion and file uploads (images/PDF) per bug, stored in Postgres.
+- **Audit log** — every role change and destructive action (project/client delete, bug delete) is recorded with actor, timestamp, and detail.
+- **Self-service auth** — registration, login, password reset by email, and silent access-token refresh via an httpOnly cookie.
+- **PDF project reports** — generated server-side and downloadable per project.
+- **Email notifications** — a developer is emailed when assigned a bug, and the reporter when it's resolved.
 
 ## Architecture
 
@@ -51,7 +77,7 @@ Express, Prisma, PostgreSQL, zod, bcrypt, jsonwebtoken, pdfkit, express-rate-lim
 ## Local setup
 
 ```bash
-git clone https://github.com/JuanCMath/guildwork.git
+git clone https://github.com/jccarmenate/GuildWork.git
 cd guildwork
 npm install
 ```
@@ -78,7 +104,7 @@ npm run prisma:generate --workspace=backend
 npm run prisma:migrate --workspace=backend
 ```
 
-Optionally seed demo data (an Admin, two PMs, five Developers with skills/seniority/mentors, two clients, three projects with assignments and bugs — everyone's password is `Password123!`):
+Optionally seed demo data (an Admin, two PMs, eight Developers with skills/seniority/mentors, five clients, eight projects with assignments and bugs — everyone's password is `Password123!`):
 
 ```bash
 npx prisma db seed --workspace=backend
