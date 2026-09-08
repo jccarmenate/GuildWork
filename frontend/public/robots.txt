@@ -1,0 +1,4 @@
+# GuildWork is a private, login-gated internal tool — nothing here is meant
+# to be publicly indexed, so we opt every crawler out entirely.
+User-agent: *
+Disallow: /
