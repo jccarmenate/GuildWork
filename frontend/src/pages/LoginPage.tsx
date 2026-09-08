@@ -4,8 +4,10 @@ import { Boxes } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
 import { ApiError } from "../api/client";
 import { ParticleNetworkBackground } from "../components/ParticleNetworkBackground";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 export function LoginPage() {
+  useDocumentTitle("Sign in");
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -36,7 +38,7 @@ export function LoginPage() {
   }
 
   return (
-    <div className="relative isolate flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-parchment via-parchment to-brass-50 px-4">
+    <div className="relative isolate flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-parchment via-parchment to-brass-50 px-4">
       <ParticleNetworkBackground />
       <div className="w-full max-w-sm overflow-hidden rounded-lg border border-line bg-surface shadow-sm">
         <div className="h-1.5 bg-brass-600" />
@@ -101,6 +103,15 @@ export function LoginPage() {
           </p>
         </div>
       </div>
+      <p className="mt-4 text-center text-xs text-ink-500">
+        <Link to="/privacy" className="hover:text-ink-600 hover:underline">
+          Privacy policy
+        </Link>{" "}
+        ·{" "}
+        <Link to="/terms" className="hover:text-ink-600 hover:underline">
+          Terms &amp; conditions
+        </Link>
+      </p>
     </div>
   );
 }

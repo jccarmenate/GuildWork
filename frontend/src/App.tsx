@@ -8,6 +8,8 @@ import { RegisterPage } from "./pages/RegisterPage";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { PrivacyPolicyPage } from "./pages/PrivacyPolicyPage";
+import { TermsPage } from "./pages/TermsPage";
 
 // Everything behind the login gate is code-split — a first-time visitor only
 // pays for the login screen, not for Recharts, the PDF/report plumbing, etc.
@@ -29,6 +31,8 @@ export function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
         <Route
           element={
             <ProtectedRoute>
