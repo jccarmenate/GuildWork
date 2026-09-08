@@ -29,6 +29,8 @@ GuildWork is a project-management system for a software consultancy: Admins and 
 - **Self-service auth** — registration, login, password reset by email, and silent access-token refresh via an httpOnly cookie.
 - **PDF project reports** — generated server-side and downloadable per project.
 - **Email notifications** — a developer is emailed when assigned a bug, and the reporter when it's resolved.
+- **Legal pages & cookie notice** — a privacy policy and terms page grounded in what GuildWork actually stores (not boilerplate), plus a cookie consent banner for the one strictly-necessary auth cookie it sets.
+- **Launch hygiene** — favicon, a generated social preview (OG) image, per-page document titles, `robots.txt` opting the whole (private, login-gated) app out of search indexing, and an HTTPS-redirect backstop for reverse-proxied deployments.
 
 ## Architecture
 
@@ -131,6 +133,8 @@ The backend suite prioritizes the authorization matrix above everything else: fo
 - **Frontend** → Vercel (static build of `frontend/`, set `VITE_API_URL` to the deployed backend URL).
 - **Backend** → Railway (or any Node host with a managed Postgres add-on). Set `DATABASE_URL`, `FRONTEND_ORIGIN` (the deployed frontend origin), `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` to real, unique secrets — never reuse the `.env.example` placeholders.
 - In production, the refresh cookie must be issued with `Secure` (HTTPS only) in addition to `httpOnly`/`SameSite=Strict` — the cookie helper already does this automatically based on `NODE_ENV=production`.
+- Most hosts (Vercel, Railway) already terminate TLS and redirect at their own edge, but `httpsRedirect` middleware adds a backstop: if `NODE_ENV=production` and a reverse proxy reports `x-forwarded-proto: http`, it 301s to `https://` before anything else runs.
+- GuildWork is a private, login-gated tool, not a public site — `robots.txt` and a `noindex, nofollow` meta tag opt it out of search crawling entirely, and there's deliberately no sitemap.
 
 ## License
 
