@@ -17,11 +17,13 @@ import auditLogRoutes from "./routes/auditLog.js";
 import { logger } from "./lib/logger.js";
 import { errorHandler } from "./middleware/errors.js";
 import { globalRateLimit } from "./middleware/rateLimit.js";
+import { httpsRedirect } from "./middleware/httpsRedirect.js";
 import { prisma } from "./lib/prisma.js";
 
 export function createApp() {
   const app = express();
 
+  app.use(httpsRedirect);
   app.use(helmet());
   app.use(
     cors({
