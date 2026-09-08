@@ -37,6 +37,7 @@ import { RoleGuard } from "../components/RoleGuard";
 import { EmptyState } from "../components/EmptyState";
 import { Spinner } from "../components/Spinner";
 import { BugStatusBadge, ProjectStatusBadge, PriorityBadge, SeverityBadge } from "../components/Badges";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import type { Bug, Severity } from "../api/types";
 
 const SEVERITY_STRIPE: Record<Severity, string> = {
@@ -128,13 +129,13 @@ function BugDetailsPanel({ bug, canParticipate }: { bug: Bug; canParticipate: bo
                 <Paperclip className="h-3.5 w-3.5 shrink-0" />
                 <span className="truncate">{a.filename}</span>
               </button>
-              <span className="ml-2 flex items-center gap-2 shrink-0 text-xs text-ink-400">
+              <span className="ml-2 flex items-center gap-2 shrink-0 text-xs text-ink-500">
                 {formatBytes(a.size)}
                 <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
                   <button
                     onClick={() => deleteAttachment.mutate(a.id)}
                     aria-label={`Delete ${a.filename}`}
-                    className="text-ink-400 transition-colors duration-150 hover:text-red-600"
+                    className="text-ink-500 transition-colors duration-150 hover:text-red-600"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -256,6 +257,7 @@ export function ProjectDetailPage() {
   const { user } = useAuth();
   const isManager = user?.role === "ADMIN" || user?.role === "PROJECT_MANAGER";
   const project = useProject(id);
+  useDocumentTitle(project.data?.name ?? "Project");
   const myProfile = useMyDeveloperProfile(!isManager);
   const developers = useDevelopers({ enabled: isManager, pageSize: 100 });
   const skills = useSkills();

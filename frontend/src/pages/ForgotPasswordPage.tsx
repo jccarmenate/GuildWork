@@ -3,8 +3,10 @@ import { Link } from "react-router-dom";
 import { Boxes, MailCheck } from "lucide-react";
 import { apiFetch } from "../api/client";
 import { ParticleNetworkBackground } from "../components/ParticleNetworkBackground";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 export function ForgotPasswordPage() {
+  useDocumentTitle("Reset your password");
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);

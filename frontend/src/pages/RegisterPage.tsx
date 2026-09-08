@@ -4,8 +4,10 @@ import { Boxes } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
 import { ApiError } from "../api/client";
 import { ParticleNetworkBackground } from "../components/ParticleNetworkBackground";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 export function RegisterPage() {
+  useDocumentTitle("Create account");
   const { register } = useAuth();
   const navigate = useNavigate();
   const [name, setName] = useState("");

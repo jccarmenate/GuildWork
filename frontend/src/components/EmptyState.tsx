@@ -12,7 +12,7 @@ export function EmptyState({ icon: Icon, title, description, action }: EmptyStat
   return (
     <div className="animate-fade-in flex flex-col items-center justify-center gap-2 py-12 text-center">
       <div className="mb-1 rounded-full bg-parchment-dark p-3">
-        <Icon className="h-6 w-6 text-ink-400" />
+        <Icon className="h-6 w-6 text-ink-500" />
       </div>
       <p className="text-sm font-medium text-ink-600">{title}</p>
       {description && <p className="max-w-sm text-sm text-ink-500">{description}</p>}

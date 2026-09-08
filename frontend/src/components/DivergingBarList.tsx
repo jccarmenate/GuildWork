@@ -20,7 +20,7 @@ export function DivergingBarList({ rows, positiveLabel, negativeLabel }: Divergi
 
   return (
     <div>
-      <div className="mb-2 flex items-center justify-between text-[11px] font-medium uppercase tracking-wide text-ink-400">
+      <div className="mb-2 flex items-center justify-between text-[11px] font-medium uppercase tracking-wide text-ink-500">
         <span>{negativeLabel}</span>
         <span>{positiveLabel}</span>
       </div>
@@ -47,12 +47,12 @@ export function DivergingBarList({ rows, positiveLabel, negativeLabel }: Divergi
               </div>
               <span
                 className={`w-14 shrink-0 text-right font-mono text-xs font-semibold tabular-nums ${
-                  isPositive ? "text-orange-700" : isZero ? "text-ink-400" : "text-teal-700"
+                  isPositive ? "text-orange-700" : isZero ? "text-ink-500" : "text-teal-700"
                 }`}
               >
                 {isPositive ? "+" : ""}
                 {row.value}
-                {row.detail && <span className="ml-1 font-normal text-ink-400">{row.detail}</span>}
+                {row.detail && <span className="ml-1 font-normal text-ink-500">{row.detail}</span>}
               </span>
             </li>
           );

@@ -9,6 +9,7 @@ import { EmptyState } from "../components/EmptyState";
 import { Spinner } from "../components/Spinner";
 import { SeverityBarChart } from "../components/charts/SeverityBarChart";
 import { BugStatusBadge, ProjectStatusBadge, SeverityBadge } from "../components/Badges";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 function ManagerDashboard() {
   const bugSeverity = useBugSeverityAnalytics();
@@ -44,7 +45,7 @@ function ManagerDashboard() {
           className="animate-fade-in-up rounded-lg border border-line bg-surface p-6 shadow-sm lg:col-span-2"
         >
           <h2 className="text-sm font-semibold text-ink-600">Top performers</h2>
-          <p className="mt-0.5 text-xs text-ink-400">High/critical bugs resolved</p>
+          <p className="mt-0.5 text-xs text-ink-500">High/critical bugs resolved</p>
           <div className="mt-4">
             {topPerformers.isLoading ? (
               <Spinner />
@@ -55,7 +56,7 @@ function ManagerDashboard() {
                 {topPerformers.data!.map((row, i) => (
                   <li key={row.developerId} className="flex items-center justify-between py-2 text-sm">
                     <span className="flex items-center gap-2 text-ink-600">
-                      <span className="font-mono text-xs text-ink-400">{String(i + 1).padStart(2, "0")}</span>
+                      <span className="font-mono text-xs text-ink-500">{String(i + 1).padStart(2, "0")}</span>
                       {row.name}
                     </span>
                     <span className="font-mono tabular-nums text-ink">{row.resolvedHighSeverityCount}</span>
@@ -135,6 +136,7 @@ function DeveloperDashboard() {
 }
 
 export function DashboardPage() {
+  useDocumentTitle("Dashboard");
   const { user } = useAuth();
   const isManager = user?.role === "ADMIN" || user?.role === "PROJECT_MANAGER";
 

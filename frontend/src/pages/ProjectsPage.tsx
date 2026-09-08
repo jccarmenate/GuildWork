@@ -9,6 +9,7 @@ import { EmptyState } from "../components/EmptyState";
 import { Spinner } from "../components/Spinner";
 import { Pagination } from "../components/Pagination";
 import { PriorityBadge, ProjectStatusBadge } from "../components/Badges";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import type { Priority, ProjectStatus } from "../api/types";
 
 const STATUSES: ProjectStatus[] = ["PLANNING", "ACTIVE", "ON_HOLD", "COMPLETED", "CANCELLED"];
@@ -95,6 +96,7 @@ function NewProjectForm({ onDone }: { onDone: () => void }) {
 }
 
 export function ProjectsPage() {
+  useDocumentTitle("Projects");
   const { user } = useAuth();
   const isManager = user?.role === "ADMIN" || user?.role === "PROJECT_MANAGER";
   const [filters, setFilters] = useState<ProjectFilters>({});

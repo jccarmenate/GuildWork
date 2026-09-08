@@ -4,6 +4,7 @@ import { useAuditLog } from "../api/auditLog";
 import { EmptyState } from "../components/EmptyState";
 import { Spinner } from "../components/Spinner";
 import { Pagination } from "../components/Pagination";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 const ACTION_LABELS: Record<string, string> = {
   USER_ROLE_CHANGED: "Role changed",
@@ -32,6 +33,7 @@ function describe(entry: { action: string; metadata: Record<string, unknown> | n
 }
 
 export function AuditLogPage() {
+  useDocumentTitle("Audit log");
   const [page, setPage] = useState(1);
   const auditLog = useAuditLog(page);
 

@@ -12,6 +12,7 @@ import { PriorityBadge } from "../components/Badges";
 import { SeverityBarChart } from "../components/charts/SeverityBarChart";
 import { Meter } from "../components/Meter";
 import { DivergingBarList } from "../components/DivergingBarList";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import type { Priority } from "../api/types";
 
 function Panel({
@@ -33,13 +34,14 @@ function Panel({
       className={`animate-fade-in-up rounded-lg border border-line bg-surface p-6 shadow-sm ${span === "full" ? "lg:col-span-2" : ""}`}
     >
       <h2 className="text-sm font-semibold text-ink-600">{title}</h2>
-      {description && <p className="mt-0.5 text-xs text-ink-400">{description}</p>}
+      {description && <p className="mt-0.5 text-xs text-ink-500">{description}</p>}
       <div className="mt-4">{children}</div>
     </section>
   );
 }
 
 export function AnalyticsPage() {
+  useDocumentTitle("Analytics");
   const bugSeverity = useBugSeverityAnalytics();
   const workload = useWorkloadAnalytics();
   const mentorship = useMentorshipAnalytics();
@@ -63,7 +65,7 @@ export function AnalyticsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="text-xs uppercase tracking-wide text-ink-400">
+                <tr className="text-xs uppercase tracking-wide text-ink-500">
                   <th className="pb-2 font-medium">Developer</th>
                   <th className="pb-2 text-right font-medium">Resolved</th>
                   <th className="pb-2 text-right font-medium">Avg. hrs</th>
@@ -73,7 +75,7 @@ export function AnalyticsPage() {
                 {topPerformers.data?.map((row, i) => (
                   <tr key={row.developerId}>
                     <td className="py-2 text-ink-600">
-                      <span className="mr-2 font-mono text-xs text-ink-400">{String(i + 1).padStart(2, "0")}</span>
+                      <span className="mr-2 font-mono text-xs text-ink-500">{String(i + 1).padStart(2, "0")}</span>
                       {row.name}
                     </td>
                     <td className="py-2 text-right font-mono tabular-nums text-ink">{row.resolvedHighSeverityCount}</td>
@@ -90,13 +92,13 @@ export function AnalyticsPage() {
         <Panel title="Project completion" description="Share of a group's projects marked Completed" span="full" delay={120}>
           <div className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
             <div className="space-y-3">
-              <h3 className="text-[11px] font-medium uppercase tracking-wide text-ink-400">By client</h3>
+              <h3 className="text-[11px] font-medium uppercase tracking-wide text-ink-500">By client</h3>
               {completion.data?.byClient.map((c) => (
                 <Meter key={c.clientId} label={c.clientName} value={c.completionRate} detail={`${c.total} projects`} />
               ))}
             </div>
             <div className="space-y-3">
-              <h3 className="text-[11px] font-medium uppercase tracking-wide text-ink-400">By priority</h3>
+              <h3 className="text-[11px] font-medium uppercase tracking-wide text-ink-500">By priority</h3>
               {completion.data?.byPriority.map((p) => (
                 <div key={p.priority} className="flex items-center gap-3">
                   <PriorityBadge priority={p.priority as Priority} />
@@ -128,7 +130,7 @@ export function AnalyticsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="text-xs uppercase tracking-wide text-ink-400">
+                <tr className="text-xs uppercase tracking-wide text-ink-500">
                   <th className="pb-2 font-medium">Developer</th>
                   <th className="pb-2 text-right font-medium">Active</th>
                   <th className="pb-2 text-right font-medium">Open bugs</th>
@@ -161,7 +163,7 @@ export function AnalyticsPage() {
                   <ul className="mt-2 space-y-1 border-l border-line pl-3 text-xs text-ink-500">
                     {m.mentees.map((mentee) => (
                       <li key={mentee.developerId}>
-                        {mentee.name} <span className="text-ink-400">— {mentee.resolvedBugCount} resolved</span>
+                        {mentee.name} <span className="text-ink-500">— {mentee.resolvedBugCount} resolved</span>
                       </li>
                     ))}
                   </ul>

@@ -9,6 +9,7 @@ import { EmptyState } from "../components/EmptyState";
 import { Spinner } from "../components/Spinner";
 import { Pagination } from "../components/Pagination";
 import { apiFetch } from "../api/client";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import type { UserRole } from "../api/types";
 
 function TeamRosterView() {
@@ -167,6 +168,7 @@ function MyProfileView() {
 }
 
 export function TeamPage() {
+  useDocumentTitle("Team");
   return (
     <div>
       <h1 className="mb-4 text-2xl font-bold text-ink">Team</h1>

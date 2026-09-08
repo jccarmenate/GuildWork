@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import { Compass } from "lucide-react";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 export function NotFoundPage() {
+  useDocumentTitle("Page not found");
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-gradient-to-br from-parchment to-parchment-dark px-4 text-center text-ink-500">
       <div className="rounded-full bg-brass-100 p-4">

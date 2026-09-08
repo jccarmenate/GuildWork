@@ -4,9 +4,11 @@ import { useClients, useCreateClient, useDeleteClient, useUpdateClient } from ".
 import { EmptyState } from "../components/EmptyState";
 import { Spinner } from "../components/Spinner";
 import { Pagination } from "../components/Pagination";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import type { Client } from "../api/types";
 
 export function ClientsPage() {
+  useDocumentTitle("Clients");
   const [page, setPage] = useState(1);
   const clients = useClients({ page });
   const createClient = useCreateClient();

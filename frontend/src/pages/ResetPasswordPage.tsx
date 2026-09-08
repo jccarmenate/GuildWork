@@ -3,8 +3,10 @@ import { Link, useSearchParams } from "react-router-dom";
 import { Boxes, CheckCircle2 } from "lucide-react";
 import { apiFetch, ApiError } from "../api/client";
 import { ParticleNetworkBackground } from "../components/ParticleNetworkBackground";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 export function ResetPasswordPage() {
+  useDocumentTitle("Choose a new password");
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token") ?? "";
   const [password, setPassword] = useState("");
