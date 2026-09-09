@@ -60,9 +60,11 @@ export function LoginPage() {
               <input
                 id="email"
                 type="email"
+                autoComplete="email"
+                spellCheck={false}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
+                className="w-full rounded-md border border-line px-3 py-2 text-sm focus-visible:border-brass-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brass-500"
               />
             </div>
             <div>
@@ -77,9 +79,10 @@ export function LoginPage() {
               <input
                 id="password"
                 type="password"
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
+                className="w-full rounded-md border border-line px-3 py-2 text-sm focus-visible:border-brass-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brass-500"
               />
             </div>
             {error && (
@@ -90,9 +93,9 @@ export function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full rounded-md bg-brass-600 px-3 py-2 text-sm font-medium text-white transition-all duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100"
+              className="w-full rounded-md bg-brass-600 px-3 py-2 text-sm font-medium text-white transition-[background-color,transform] duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100"
             >
-              {isSubmitting ? "Signing in..." : "Sign in"}
+              {isSubmitting ? "Signing in…" : "Sign in"}
             </button>
           </form>
           <p className="mt-4 text-center text-sm text-ink-500">

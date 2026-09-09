@@ -43,7 +43,7 @@ export function AuditLogPage() {
       <p className="mb-4 text-sm text-ink-500">Role changes and destructive actions across GuildWork, most recent first.</p>
 
       {auditLog.isLoading ? (
-        <Spinner label="Loading audit log..." />
+        <Spinner label="Loading audit log…" />
       ) : !auditLog.data || auditLog.data.items.length === 0 ? (
         <EmptyState icon={History} title="No audited activity yet" />
       ) : (

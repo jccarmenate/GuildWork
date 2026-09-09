@@ -53,14 +53,14 @@ function NewProjectForm({ onDone }: { onDone: () => void }) {
           placeholder="Project name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
+          className="rounded-md border border-line px-3 py-2 text-sm focus-visible:border-brass-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brass-500"
         />
         <select
           value={clientId}
           onChange={(e) => setClientId(e.target.value)}
-          className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
+          className="rounded-md border border-line px-3 py-2 text-sm focus-visible:border-brass-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brass-500"
         >
-          <option value="">Select client...</option>
+          <option value="">Select client…</option>
           {clients.data?.items.map((c) => (
             <option key={c.id} value={c.id}>
               {c.name}
@@ -71,7 +71,7 @@ function NewProjectForm({ onDone }: { onDone: () => void }) {
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
+          className="rounded-md border border-line px-3 py-2 text-sm focus-visible:border-brass-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brass-500"
         />
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}
@@ -79,7 +79,7 @@ function NewProjectForm({ onDone }: { onDone: () => void }) {
         <button
           type="submit"
           disabled={createProject.isPending}
-          className="rounded-md bg-brass-600 px-3 py-2 text-sm font-medium text-white transition-all duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100"
+          className="rounded-md bg-brass-600 px-3 py-2 text-sm font-medium text-white transition-[background-color,transform] duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100"
         >
           Create project
         </button>
@@ -116,7 +116,7 @@ export function ProjectsPage() {
         <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
           <button
             onClick={() => setShowForm((v) => !v)}
-            className="flex items-center gap-1.5 rounded-md bg-brass-600 px-3 py-2 text-sm font-medium text-white transition-all duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98]"
+            className="flex items-center gap-1.5 rounded-md bg-brass-600 px-3 py-2 text-sm font-medium text-white transition-[background-color,transform] duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98]"
           >
             <Plus className="h-4 w-4" />
             New Project
@@ -129,13 +129,13 @@ export function ProjectsPage() {
       {isManager && (
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           <input
-            placeholder="Search by name..."
+            placeholder="Search by name…"
             onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value || undefined }))}
-            className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
+            className="rounded-md border border-line px-3 py-2 text-sm focus-visible:border-brass-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brass-500"
           />
           <select
             onChange={(e) => setFilters((f) => ({ ...f, status: (e.target.value || undefined) as ProjectStatus }))}
-            className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
+            className="rounded-md border border-line px-3 py-2 text-sm focus-visible:border-brass-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brass-500"
           >
             <option value="">All statuses</option>
             {STATUSES.map((s) => (
@@ -146,7 +146,7 @@ export function ProjectsPage() {
           </select>
           <select
             onChange={(e) => setFilters((f) => ({ ...f, priority: (e.target.value || undefined) as Priority }))}
-            className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
+            className="rounded-md border border-line px-3 py-2 text-sm focus-visible:border-brass-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brass-500"
           >
             <option value="">All priorities</option>
             {PRIORITIES.map((p) => (
@@ -158,7 +158,7 @@ export function ProjectsPage() {
           {clients.data && clients.data.items.length > 0 && (
             <select
               onChange={(e) => setFilters((f) => ({ ...f, clientId: e.target.value || undefined }))}
-              className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
+              className="rounded-md border border-line px-3 py-2 text-sm focus-visible:border-brass-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brass-500"
             >
               <option value="">All clients</option>
               {clients.data.items.map((c) => (
@@ -172,7 +172,7 @@ export function ProjectsPage() {
       )}
 
       {projects.isLoading ? (
-        <Spinner label="Loading projects..." />
+        <Spinner label="Loading projects…" />
       ) : projects.isError ? (
         <p className="text-sm text-red-600">Failed to load projects.</p>
       ) : !projects.data ? (

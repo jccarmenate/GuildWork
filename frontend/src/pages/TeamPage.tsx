@@ -25,7 +25,7 @@ function TeamRosterView() {
   const workloadByDevId = new Map(workload.data?.map((w) => [w.developerId, w]));
 
   if (developers.isLoading) {
-    return <Spinner label="Loading team..." />;
+    return <Spinner label="Loading team…" />;
   }
   if (!developers.data || developers.data.items.length === 0) {
     return <EmptyState icon={Users} title="No developers yet" />;
@@ -67,7 +67,7 @@ function TeamRosterView() {
                       <select
                         defaultValue="DEVELOPER"
                         onChange={(e) => void changeRole(d.userId, e.target.value as UserRole)}
-                        className="rounded-md border border-line px-2 py-1 text-xs focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
+                        className="rounded-md border border-line px-2 py-1 text-xs focus-visible:border-brass-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brass-500"
                       >
                         <option value="DEVELOPER">Developer</option>
                         <option value="PROJECT_MANAGER">Project Manager</option>
@@ -100,7 +100,7 @@ function MyProfileView() {
   const updateProfile = useUpdateMyProfile();
   const [bio, setBio] = useState(profile.data?.bio ?? "");
 
-  if (profile.isLoading) return <Spinner label="Loading your profile..." />;
+  if (profile.isLoading) return <Spinner label="Loading your profile…" />;
   if (!profile.data) return <p className="text-sm text-red-600">Could not load your profile.</p>;
 
   const mySkillIds = new Set(profile.data.skills.map((s) => s.skillId));
@@ -115,12 +115,12 @@ function MyProfileView() {
         <textarea
           value={bio}
           onChange={(e) => setBio(e.target.value)}
-          placeholder="Tell the team about yourself..."
-          className="mb-2 w-full rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
+          placeholder="Tell the team about yourself…"
+          className="mb-2 w-full rounded-md border border-line px-3 py-2 text-sm focus-visible:border-brass-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brass-500"
         />
         <button
           onClick={() => updateProfile.mutate({ bio })}
-          className="rounded-md bg-brass-600 px-3 py-2 text-sm font-medium text-white transition-all duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98]"
+          className="rounded-md bg-brass-600 px-3 py-2 text-sm font-medium text-white transition-[background-color,transform] duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98]"
         >
           Save bio
         </button>
@@ -151,9 +151,9 @@ function MyProfileView() {
             if (e.target.value) addSkill.mutate({ skillId: e.target.value });
             e.target.value = "";
           }}
-          className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
+          className="rounded-md border border-line px-3 py-2 text-sm focus-visible:border-brass-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brass-500"
         >
-          <option value="">Add a skill...</option>
+          <option value="">Add a skill…</option>
           {skills.data
             ?.filter((s) => !mySkillIds.has(s.id))
             .map((s) => (

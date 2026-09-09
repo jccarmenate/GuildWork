@@ -118,7 +118,7 @@ const BUG_STATUS_LABELS: Record<BugStatus, string> = {
   OPEN: "Open",
   IN_PROGRESS: "In Progress",
   RESOLVED: "Resolved",
-  WONT_FIX: "Won't Fix"
+  WONT_FIX: "Won’t Fix"
 };
 
 const BUG_STATUS_COLORS: Record<BugStatus, BadgeColor> = {

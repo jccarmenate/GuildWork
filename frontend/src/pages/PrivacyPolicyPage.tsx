@@ -17,13 +17,13 @@ export function PrivacyPolicyPage() {
 
       <LegalSection title="What we store">
         <p>About your account: your name, email address, role, and a bcrypt hash of your password (never the password itself).</p>
-        <p>About your work: projects and clients you're assigned to, bugs you report or are assigned, comments and file attachments you post, and your skills/seniority profile if you're a developer.</p>
+        <p>About your work: projects and clients you’re assigned to, bugs you report or are assigned, comments and file attachments you post, and your skills/seniority profile if you’re a developer.</p>
         <p>About your sessions: a hashed refresh token tied to your account, so we can keep you signed in without storing the token itself in a readable form.</p>
         <p>Activity records: role changes and destructive actions (deleting a project, client, or bug) are logged with who did it and when, for accountability.</p>
       </LegalSection>
 
-      <LegalSection title="What we don't do">
-        <p>We don't sell or share your data with third parties. We don't use tracking or advertising cookies. We don't run analytics that profile individual users across other sites.</p>
+      <LegalSection title="What we don’t do">
+        <p>We don’t sell or share your data with third parties. We don’t use tracking or advertising cookies. We don’t run analytics that profile individual users across other sites.</p>
       </LegalSection>
 
       <LegalSection title="Cookies">
@@ -44,7 +44,7 @@ export function PrivacyPolicyPage() {
       <LegalSection title="Your rights">
         <p>
           You can ask an administrator to see, correct, or delete the personal data GuildWork holds about you,
-          subject to what's needed to keep an accurate project history.
+          subject to what’s needed to keep an accurate project history.
         </p>
       </LegalSection>
 

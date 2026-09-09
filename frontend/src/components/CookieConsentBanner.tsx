@@ -44,7 +44,7 @@ export function CookieConsentBanner() {
         </p>
         <button
           onClick={acknowledge}
-          className="w-full shrink-0 rounded-md bg-brass-600 px-4 py-2 text-sm font-medium text-white transition-all duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98] sm:w-auto"
+          className="w-full shrink-0 rounded-md bg-brass-600 px-4 py-2 text-sm font-medium text-white transition-[background-color,transform] duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98] sm:w-auto"
         >
           Got it
         </button>

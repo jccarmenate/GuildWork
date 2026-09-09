@@ -53,7 +53,7 @@ export function AnalyticsPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-semibold text-ink">Analytics</h1>
-        <p className="mt-1 text-sm text-ink-500">A ledger of how the guild is doing — load, coverage, and who's carrying what.</p>
+        <p className="mt-1 text-sm text-ink-500">A ledger of how the guild is doing — load, coverage, and who’s carrying what.</p>
       </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
@@ -89,7 +89,7 @@ export function AnalyticsPage() {
           </div>
         </Panel>
 
-        <Panel title="Project completion" description="Share of a group's projects marked Completed" span="full" delay={120}>
+        <Panel title="Project completion" description="Share of a group’s projects marked Completed" span="full" delay={120}>
           <div className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
             <div className="space-y-3">
               <h3 className="text-[11px] font-medium uppercase tracking-wide text-ink-500">By client</h3>

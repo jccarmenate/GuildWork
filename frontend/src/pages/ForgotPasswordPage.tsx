@@ -62,9 +62,11 @@ export function ForgotPasswordPage() {
                   id="email"
                   type="email"
                   required
+                  autoComplete="email"
+                  spellCheck={false}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
+                  className="w-full rounded-md border border-line px-3 py-2 text-sm focus-visible:border-brass-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brass-500"
                 />
               </div>
               {error && (
@@ -75,9 +77,9 @@ export function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full rounded-md bg-brass-600 px-3 py-2 text-sm font-medium text-white transition-all duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100"
+                className="w-full rounded-md bg-brass-600 px-3 py-2 text-sm font-medium text-white transition-[background-color,transform] duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100"
               >
-                {isSubmitting ? "Sending..." : "Send reset link"}
+                {isSubmitting ? "Sending…" : "Send reset link"}
               </button>
               <p className="text-center text-sm text-ink-500">
                 <Link to="/login" className="font-medium text-brass-600 hover:text-brass-700 hover:underline">

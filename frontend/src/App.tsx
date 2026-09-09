@@ -25,7 +25,7 @@ const AuditLogPage = lazy(() => import("./pages/AuditLogPage").then((m) => ({ de
 
 export function App() {
   return (
-    <Suspense fallback={<Spinner label="Loading..." />}>
+    <Suspense fallback={<Spinner label="Loading…" />}>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />

@@ -19,7 +19,7 @@ export function Meter({ label, value, detail }: MeterProps) {
         </span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-brass-100" role="meter" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label={label}>
-        <div className="h-full rounded-full bg-brass-500 transition-all duration-300" style={{ width: `${pct}%` }} />
+        <div className="h-full rounded-full bg-brass-500 transition-[width] duration-300" style={{ width: `${pct}%` }} />
       </div>
     </div>
   );

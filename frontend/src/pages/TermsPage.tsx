@@ -13,7 +13,7 @@ export function TermsPage() {
 
       <LegalSection title="Accounts">
         <p>
-          You're responsible for keeping your password confidential and for activity that happens under your
+          You’re responsible for keeping your password confidential and for activity that happens under your
           account. Self-registration creates a Developer account; Project Manager and Admin roles are assigned by an
           administrator.
         </p>
@@ -21,16 +21,16 @@ export function TermsPage() {
 
       <LegalSection title="Acceptable use">
         <ul className="list-disc space-y-1 pl-5">
-          <li>Don't upload attachments you don't have the right to share.</li>
-          <li>Don't attempt to access projects, clients, or developer data you're not assigned to.</li>
-          <li>Don't use automated tools to scrape or overload the service.</li>
+          <li>Don’t upload attachments you don’t have the right to share.</li>
+          <li>Don’t attempt to access projects, clients, or developer data you’re not assigned to.</li>
+          <li>Don’t use automated tools to scrape or overload the service.</li>
         </ul>
       </LegalSection>
 
       <LegalSection title="Content you submit">
         <p>
-          Bug reports, comments, and attachments you post remain associated with your account for the project's
-          history. Deleting a bug or project doesn't erase the audit trail of that action.
+          Bug reports, comments, and attachments you post remain associated with your account for the project’s
+          history. Deleting a bug or project doesn’t erase the audit trail of that action.
         </p>
       </LegalSection>
 

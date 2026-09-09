@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BarChart3, Boxes, Building2, FolderKanban, History, LayoutDashboard, LogOut, Menu, Users, X } from "lucide-react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
@@ -20,6 +20,15 @@ export function Layout() {
   function closeNav() {
     setIsNavOpen(false);
   }
+
+  useEffect(() => {
+    if (!isNavOpen) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") closeNav();
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isNavOpen]);
 
   return (
     <div className="bg-dot-grid min-h-screen bg-parchment">
