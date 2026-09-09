@@ -69,13 +69,41 @@
   .animate-stamp-in {
     animation: stamp-in 260ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
   }
+
+  @keyframes dialog-in {
+    from {
+      opacity: 0;
+      transform: scale(0.96) translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  .animate-dialog-in {
+    animation: dialog-in 180ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-in-up,
   .animate-fade-in,
-  .animate-stamp-in {
+  .animate-stamp-in,
+  .animate-dialog-in {
     animation: none;
+  }
+
+  /* The hover/active scale micro-interaction on buttons is applied via
+     Tailwind's hover:scale and active:scale utilities inline in markup, so
+     it can't be neutralized by targeting a class here. Tailwind composes
+     scale into `transform` through these two custom properties, so pinning
+     them to 1 cancels just the scale — unlike a blanket `transform: none`,
+     this leaves unrelated static transforms (e.g. a `-translate-y-1/2`
+     centering trick) alone. */
+  * {
+    --tw-scale-x: 1 !important;
+    --tw-scale-y: 1 !important;
   }
 }
 

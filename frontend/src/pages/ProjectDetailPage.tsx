@@ -37,8 +37,9 @@ import { RoleGuard } from "../components/RoleGuard";
 import { EmptyState } from "../components/EmptyState";
 import { Spinner } from "../components/Spinner";
 import { BugStatusBadge, ProjectStatusBadge, PriorityBadge, SeverityBadge } from "../components/Badges";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
-import type { Bug, Severity } from "../api/types";
+import type { Bug, BugAttachment, Severity } from "../api/types";
 
 const SEVERITY_STRIPE: Record<Severity, string> = {
   LOW: "border-l-ink-200",
@@ -60,6 +61,7 @@ function BugDetailsPanel({ bug, canParticipate }: { bug: Bug; canParticipate: bo
   const uploadAttachment = useUploadBugAttachment(bug.id);
   const deleteAttachment = useDeleteBugAttachment(bug.id);
   const [commentBody, setCommentBody] = useState("");
+  const [pendingDeleteAttachment, setPendingDeleteAttachment] = useState<BugAttachment | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function downloadAttachment(attachmentId: string, filename: string) {
@@ -77,7 +79,7 @@ function BugDetailsPanel({ bug, canParticipate }: { bug: Bug; canParticipate: bo
       <div>
         <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-500">Comments</h3>
         {comments.isLoading ? (
-          <Spinner label="Loading comments..." />
+          <Spinner label="Loading comments…" />
         ) : (
           <ul className="mb-3 max-h-56 space-y-2 overflow-y-auto pr-1">
             {comments.data?.map((c) => (
@@ -97,9 +99,9 @@ function BugDetailsPanel({ bug, canParticipate }: { bug: Bug; canParticipate: bo
             <textarea
               value={commentBody}
               onChange={(e) => setCommentBody(e.target.value)}
-              placeholder="Add a comment..."
+              placeholder="Add a comment…"
               rows={1}
-              className="flex-1 resize-none rounded-md border border-line px-2 py-1.5 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
+              className="flex-1 resize-none rounded-md border border-line px-2 py-1.5 text-sm focus-visible:border-brass-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brass-500"
             />
             <button
               onClick={() => {
@@ -107,7 +109,7 @@ function BugDetailsPanel({ bug, canParticipate }: { bug: Bug; canParticipate: bo
                 addComment.mutate(commentBody, { onSuccess: () => setCommentBody("") });
               }}
               disabled={addComment.isPending}
-              className="flex items-center gap-1 rounded-md bg-brass-600 px-2.5 py-1.5 text-xs font-medium text-white transition-all duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100"
+              className="flex items-center gap-1 rounded-md bg-brass-600 px-2.5 py-1.5 text-xs font-medium text-white transition-[background-color,transform] duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100"
             >
               <Send className="h-3.5 w-3.5" />
               Post
@@ -133,7 +135,7 @@ function BugDetailsPanel({ bug, canParticipate }: { bug: Bug; canParticipate: bo
                 {formatBytes(a.size)}
                 <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
                   <button
-                    onClick={() => deleteAttachment.mutate(a.id)}
+                    onClick={() => setPendingDeleteAttachment(a)}
                     aria-label={`Delete ${a.filename}`}
                     className="text-ink-500 transition-colors duration-150 hover:text-red-600"
                   >
@@ -164,7 +166,7 @@ function BugDetailsPanel({ bug, canParticipate }: { bug: Bug; canParticipate: bo
               className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-line px-2.5 py-1.5 text-xs font-medium text-ink-600 transition-colors duration-150 hover:bg-parchment"
             >
               <Paperclip className="h-3.5 w-3.5" />
-              {uploadAttachment.isPending ? "Uploading..." : "Attach a file"}
+              {uploadAttachment.isPending ? "Uploading…" : "Attach a file"}
             </label>
             {uploadAttachment.isError && (
               <p className="mt-1 text-xs text-red-600">Could not upload that file (max 5 MB, images or PDF).</p>
@@ -172,6 +174,19 @@ function BugDetailsPanel({ bug, canParticipate }: { bug: Bug; canParticipate: bo
           </>
         )}
       </div>
+
+      <ConfirmDialog
+        open={pendingDeleteAttachment !== null}
+        title="Delete this attachment?"
+        description={pendingDeleteAttachment ? `“${pendingDeleteAttachment.filename}” will be permanently removed. This can’t be undone.` : ""}
+        confirmLabel="Delete attachment"
+        isPending={deleteAttachment.isPending}
+        onConfirm={() => {
+          if (!pendingDeleteAttachment) return;
+          deleteAttachment.mutate(pendingDeleteAttachment.id, { onSuccess: () => setPendingDeleteAttachment(null) });
+        }}
+        onCancel={() => setPendingDeleteAttachment(null)}
+      />
     </div>
   );
 }
@@ -185,6 +200,7 @@ function BugRow({ bug, projectId, myDeveloperId }: { bug: Bug; projectId: string
   const deleteBug = useDeleteBug(projectId);
   const [isExpanded, setIsExpanded] = useState(false);
   const [hasOpened, setHasOpened] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   function toggle() {
     setIsExpanded((v) => {
@@ -213,7 +229,7 @@ function BugRow({ bug, projectId, myDeveloperId }: { bug: Bug; projectId: string
             <select
               value={bug.status}
               onChange={(e) => updateBug.mutate({ id: bug.id, data: { status: e.target.value } })}
-              className="rounded-md border border-line px-2 py-1 text-xs focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
+              className="rounded-md border border-line px-2 py-1 text-xs focus-visible:border-brass-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brass-500"
             >
               {["OPEN", "IN_PROGRESS", "RESOLVED", "WONT_FIX"].map((s) => (
                 <option key={s} value={s}>
@@ -228,7 +244,7 @@ function BugRow({ bug, projectId, myDeveloperId }: { bug: Bug; projectId: string
         <td className="px-3 py-2 text-right">
           <RoleGuard allow={["ADMIN", "PROJECT_MANAGER"]}>
             <button
-              onClick={() => deleteBug.mutate(bug.id)}
+              onClick={() => setConfirmingDelete(true)}
               className="inline-flex items-center gap-1 text-xs font-medium text-red-600 transition-colors duration-150 hover:text-red-700"
             >
               <Trash2 className="h-3.5 w-3.5" />
@@ -237,6 +253,15 @@ function BugRow({ bug, projectId, myDeveloperId }: { bug: Bug; projectId: string
           </RoleGuard>
         </td>
       </tr>
+      <ConfirmDialog
+        open={confirmingDelete}
+        title="Delete this bug?"
+        description={`“${bug.title}” and its comments and attachments will be permanently removed. This can’t be undone.`}
+        confirmLabel="Delete bug"
+        isPending={deleteBug.isPending}
+        onConfirm={() => deleteBug.mutate(bug.id, { onSuccess: () => setConfirmingDelete(false) })}
+        onCancel={() => setConfirmingDelete(false)}
+      />
       {hasOpened && (
         <tr className="border-t border-line bg-surface">
           <td colSpan={4} className="p-0">
@@ -286,7 +311,7 @@ export function ProjectDetailPage() {
     }
   }
 
-  if (project.isLoading) return <Spinner label="Loading project..." />;
+  if (project.isLoading) return <Spinner label="Loading project…" />;
   if (project.isError || !project.data) return <p className="text-sm text-red-600">Project not found.</p>;
 
   const p = project.data;
@@ -311,7 +336,7 @@ export function ProjectDetailPage() {
           className="flex items-center gap-1.5 rounded-md border border-line px-3 py-2 text-sm font-medium text-ink-600 transition-colors duration-150 hover:bg-parchment disabled:opacity-60"
         >
           <Download className="h-4 w-4" />
-          {isDownloading ? "Preparing..." : "Download PDF report"}
+          {isDownloading ? "Preparing…" : "Download PDF report"}
         </button>
       </div>
 
@@ -343,9 +368,9 @@ export function ProjectDetailPage() {
               if (e.target.value) assignDeveloper.mutate({ developerId: e.target.value });
               e.target.value = "";
             }}
-            className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
+            className="rounded-md border border-line px-3 py-2 text-sm focus-visible:border-brass-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brass-500"
           >
-            <option value="">Assign a developer...</option>
+            <option value="">Assign a developer…</option>
             {developers.data?.items
               .filter((d) => !assignedIds.has(d.id))
               .map((d) => (
@@ -385,9 +410,9 @@ export function ProjectDetailPage() {
               if (e.target.value) addSkill.mutate(e.target.value);
               e.target.value = "";
             }}
-            className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
+            className="rounded-md border border-line px-3 py-2 text-sm focus-visible:border-brass-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brass-500"
           >
-            <option value="">Add a required skill...</option>
+            <option value="">Add a required skill…</option>
             {skills.data
               ?.filter((s) => !requiredSkillIds.has(s.id))
               .map((s) => (
@@ -409,12 +434,12 @@ export function ProjectDetailPage() {
               placeholder="New bug title"
               value={newBugTitle}
               onChange={(e) => setNewBugTitle(e.target.value)}
-              className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500 sm:flex-1"
+              className="rounded-md border border-line px-3 py-2 text-sm focus-visible:border-brass-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brass-500 sm:flex-1"
             />
             <select
               value={newBugSeverity}
               onChange={(e) => setNewBugSeverity(e.target.value as Severity)}
-              className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
+              className="rounded-md border border-line px-3 py-2 text-sm focus-visible:border-brass-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brass-500"
             >
               {["LOW", "MEDIUM", "HIGH", "CRITICAL"].map((s) => (
                 <option key={s} value={s}>
@@ -428,7 +453,7 @@ export function ProjectDetailPage() {
                 createBug.mutate({ title: newBugTitle, severity: newBugSeverity });
                 setNewBugTitle("");
               }}
-              className="flex items-center justify-center gap-1.5 rounded-md bg-brass-600 px-3 py-2 text-sm font-medium text-white transition-all duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98]"
+              className="flex items-center justify-center gap-1.5 rounded-md bg-brass-600 px-3 py-2 text-sm font-medium text-white transition-[background-color,transform] duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98]"
             >
               <Plus className="h-4 w-4" />
               Add bug

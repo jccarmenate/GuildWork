@@ -4,6 +4,7 @@ import { useClients, useCreateClient, useDeleteClient, useUpdateClient } from ".
 import { EmptyState } from "../components/EmptyState";
 import { Spinner } from "../components/Spinner";
 import { Pagination } from "../components/Pagination";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import type { Client } from "../api/types";
 
@@ -17,6 +18,7 @@ export function ClientsPage() {
   const [name, setName] = useState("");
   const [industry, setIndustry] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<Client | null>(null);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -42,17 +44,17 @@ export function ClientsPage() {
           placeholder="Client name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
+          className="rounded-md border border-line px-3 py-2 text-sm focus-visible:border-brass-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brass-500"
         />
         <input
           placeholder="Industry (optional)"
           value={industry}
           onChange={(e) => setIndustry(e.target.value)}
-          className="rounded-md border border-line px-3 py-2 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
+          className="rounded-md border border-line px-3 py-2 text-sm focus-visible:border-brass-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brass-500"
         />
         <button
           type="submit"
-          className="flex items-center justify-center gap-1.5 rounded-md bg-brass-600 px-3 py-2 text-sm font-medium text-white transition-all duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98]"
+          className="flex items-center justify-center gap-1.5 rounded-md bg-brass-600 px-3 py-2 text-sm font-medium text-white transition-[background-color,transform] duration-150 hover:scale-[1.02] hover:bg-brass-700 active:scale-[0.98]"
         >
           <Plus className="h-4 w-4" />
           Add client
@@ -60,7 +62,7 @@ export function ClientsPage() {
       </form>
 
       {clients.isLoading ? (
-        <Spinner label="Loading clients..." />
+        <Spinner label="Loading clients…" />
       ) : !clients.data || clients.data.items.length === 0 ? (
         <EmptyState icon={Building2} title="No clients yet" description="Add your first client using the form above." />
       ) : (
@@ -92,7 +94,7 @@ export function ClientsPage() {
                             setEditingId(null);
                           }}
                           autoFocus
-                          className="rounded-md border border-line px-2 py-1 text-sm focus:border-brass-500 focus:outline-none focus:ring-1 focus:ring-brass-500"
+                          className="rounded-md border border-line px-2 py-1 text-sm focus-visible:border-brass-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brass-500"
                         />
                       ) : (
                         <button
@@ -107,7 +109,7 @@ export function ClientsPage() {
                     <td className="px-4 py-2 text-ink-500">{c.contactName ?? "-"}</td>
                     <td className="px-4 py-2 text-right">
                       <button
-                        onClick={() => deleteClient.mutate(c.id)}
+                        onClick={() => setPendingDelete(c)}
                         className="inline-flex items-center gap-1 text-xs font-medium text-red-600 transition-colors duration-150 hover:text-red-700"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -123,6 +125,23 @@ export function ClientsPage() {
         <Pagination page={clients.data!.page} pageSize={clients.data!.pageSize} total={clients.data!.total} onPageChange={setPage} />
         </>
       )}
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="Delete this client?"
+        description={
+          pendingDelete
+            ? `“${pendingDelete.name}” and its association with any projects will be removed. This can’t be undone.`
+            : ""
+        }
+        confirmLabel="Delete client"
+        isPending={deleteClient.isPending}
+        onConfirm={() => {
+          if (!pendingDelete) return;
+          deleteClient.mutate(pendingDelete.id, { onSuccess: () => setPendingDelete(null) });
+        }}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   );
 }
